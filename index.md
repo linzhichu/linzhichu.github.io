@@ -1,9 +1,11 @@
 ---
 layout: page
-title: Hello World!
-tagline: Supporting tagline
+title: Pieces of Thoughts
+tagline: random
 ---
 {% include JB/setup %}
+
+中文是这样的
 
 Read [Jekyll Quick Start](http://jekyllbootstrap.com/usage/jekyll-quick-start.html)
 
