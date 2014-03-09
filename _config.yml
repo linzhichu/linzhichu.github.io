@@ -79,8 +79,8 @@ JB :
   #
   comments :
     provider : disqus
-    #disqus :
-    #  short_name : laaaazc
+    disqus :
+      short_name : decodedbits
     # livefyre :
     #  site_id : 123
     # intensedebate :
