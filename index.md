@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Pieces of Thoughts
-tagline: random
+title: Decoded Bits
+tagline: 
 ---
 {% include JB/setup %}
     
