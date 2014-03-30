@@ -18,8 +18,70 @@ tags: tools
 <h2 id="sec-2">基本使用</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-screen的使用非常简单，在中端键入 <code>screen</code> 命令，你就进入了screen的窗口管理器，看起来似乎和正常的中端毫无差别。
-所有screen自带命令的前缀快捷键默认是 <code>Ctrl-a</code> ，例如 <code>Ctrl-a ?</code> 会列出所有screen命令核对应的快捷键
+screen的使用非常简单，在终端键入 <code>screen</code> 命令，你就进入了screen的窗口管理器，看起来似乎和正常的终端毫无差别。
 </p>
+
+<p>
+所有screen自带命令的前缀快捷键默认是 <code>Ctrl-a</code> ，例如 <code>Ctrl-a ?</code> 会列出所有screen命令和对应的快捷键。
+</p>
+
+<p>
+这其中你首先会用到的就是所谓的 <b>detach</b> （挂起）命令。 <code>Ctrl-a d</code> 将一个窗口挂起的时候，这个窗口就在后台继续运行，当你下次连接上的时候，用 <code>screen -ls</code> 命令可以查看当前所有screen窗口的状态，例如
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ screen -ls
+There is a screen on:
+        16792.pts-3.ubuntu      (03/30/2014 04:24:22 PM)        (Detached)
+1 Socket<span style="color: #a020f0;"> in</span> /var/run/screen/S-zhichu.
+</pre>
+</div>
+<p>
+可以重新 <b>attach</b> 这个窗口
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ screen -r 16792
+</pre>
+</div>
+<p>
+这样就回到了你挂起前的窗口，而且你会发现不管是你之前没有跑完的仿真还是没有下载完的文件，都不会因为这个窗口被挂起受到任何影响。
+</p>
+
+<p>
+当然，如果每次需要ssh后再重新加载窗口还是略显繁琐，我们可以将两步合成一步完成
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh -t yourhost screen -r
+</pre>
+</div>
+<p>
+这样就可以直接进入加载后的窗口，而且当重新挂起这个窗口后会自动退出ssh连接。
+</p>
+
+<p>
+当你在screen窗口中会发现，窗口是无法滚动的，这当然是无法接受的。这时候只需要 <code>Ctrl-a [</code> 进入拷贝模式，就可以用箭头或者翻页键来滚动窗口。
+</p>
+
+<p>
+有时候你可能在重新 <b>attach</b> 窗口的时候发现因为没有 <b>detach</b> 而无法加载。例如 <code>screen -ls</code> 显示
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ screen -ls
+There is a screen on:
+        16792.pts-3.ubuntu      (03/30/2014 04:24:22 PM)        (Attached)
+1 Socket<span style="color: #a020f0;"> in</span> /var/run/screen/S-zhichu.
+</pre>
+</div>
+<p>
+这时候需要用以下命令先挂起再加载，
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ screen -Dr
+</pre>
+</div>
 </div>
 </div>
