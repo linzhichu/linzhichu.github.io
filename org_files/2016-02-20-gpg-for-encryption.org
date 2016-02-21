@@ -1,0 +1,61 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: GPG加密简介
+categories: computers
+tags: encryption
+---
+#+END_HTML
+[[https://en.wikipedia.org/wiki/GNU_Privacy_Guard][GPG]] (GNU Privacy Guard)是基于OpenPGP协议的一个加密程序，而OpenPGP本身是基于[[https://en.wikipedia.org/wiki/Pretty_Good_Privacy][Pretty Good Privacy]] （简称PGP）的一个开源协议。
+* 几种不同的加密方法
+** symmetric-key cryptography
+想象一下我们有一个有发送方和接收方共享的密码本，加密时使用这个密码本进行编码，接收方也使用这个密码本进行解码
+#+BEGIN_SRC sh
+enc(发送文本, 密码本)=加密文本 -> 发送 -> dec(加密文本, 密码本)=解密后文本 
+#+END_SRC
+这种加密方式的优点是加密/解密过程的复杂度很低，缺点是密码本一旦泄露会导致所有加密失效。
+** public-key cryptography
+想象一下我们有一个钥匙和一把这个钥匙可以开的锁，我们可以把这个锁交给需要给我们发送加密信息的人，他把信息用我们给的锁锁在一个盒子里(相当于加密)，只有有这把钥匙的人才能打开这个盒子（相当于解密）。在实际的加密过程中，接收加密信息的一方要生成一对 /public/private key/，将public key发给需要向他发送加密信息的人，所有的加密信息会用public key进行加密，再由private key进行解密。
+#+begin_quote
+*注意* ，我们的比喻和真实的public-key加密有一个极其重要的区别，从一把锁能配出一把钥匙，但是从public key并不能恢复出private key。
+#+end_quote
+和symmetric-key的加密相比，这种加密方式的优点很明显，就是只要保存好private key，就不会被泄密，因此泄密概率大大降低。但是缺点是，当信息量较大时，加密和解密的过程计算开销较大。
+** hybrid cryptography
+顾名思义，hybrid加密结合了以上两种加密方式，具体做法是：数据采用symmetric key加密，但是本身这个key用public key进行加密。还是用我们之前的例子，相当于信息的接收方先把和钥匙配对的锁给了发送方，发送方随机生成了密码本，然后将信息用这个密码本加密，最后将密码本用接收方给的锁锁进盒子；接收方先用自己的钥匙解开锁后得到密码本，再用密码本解码信息。
+这样的方式很巧妙地结合了两种加密方式的优点：public key用来加密symmetric key的key，保密性好；数据用symmetric key加密，加密解密都简单。
+#+CAPTION: PGP协议的加密和解密过程示意图
+#+NAME:   fig:SED-HR4049
+     [[https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/PGP_diagram.svg/575px-PGP_diagram.svg.png]]
+* 常用GPG命令
+- 生成public/private key
+#+BEGIN_SRC sh
+gpg --gen-key
+#+END_SRC
+- 列出当前的key
+#+BEGIN_SRC sh
+gpg --list-keys
+#+END_SRC
+- 将生成的public key生成文本格式用来发送给加密方
+#+BEGIN_SRC sh
+gpg --armor --export receiver@example.com
+#+END_SRC
+- （作为加密方）导入对方的public key
+#+BEGIN_SRC sh
+gpg --import receiver_public.key
+#+END_SRC
+- 为/receiver@example.com/加密文件
+#+BEGIN_SRC sh
+gpg --output encrypted.txt.gpg --encrypt --recipient receiver@example.com plain.txt
+#+END_SRC
+- 解密文件
+#+BEGIN_SRC sh
+gpg --output plain.txt --decrypt encrypted.txt.gpg
+#+END_SRC
+* 一次使用GPG的实践
+某个项目中需要和另一方互相传送PGP加密文件，因此首先使用gpg生成本地public和private key，然后双方交换public key。加密时，需要生成双方都能解密的文件，因此使用以下命令为加密文件添加多个接收方：
+#+BEGIN_SRC sh
+gpg --output encrypted.gpg --encrypt --recipient receiver1@example.com --recipient receiver2@example.com plain.txt
+#+END_SRC
+实现的原理是将symmetric key加密的key用两个public key分别加密了一次（相当于将密码本放进两个有不同的锁的盒子，有其中任意一个锁的钥匙就能解密了）。
