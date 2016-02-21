@@ -60,7 +60,42 @@ tags: encryption
 </div>
 <div id="outline-container-orgheadline5" class="outline-2">
 <h2 id="orgheadline5">常用GPG命令</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<ul class="org-ul">
+<li>生成public/private key</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --gen-key
+</pre>
 </div>
+<ul class="org-ul">
+<li>列出当前的key</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --list-keys
+</pre>
+</div>
+<ul class="org-ul">
+<li>将生成的public key生成文本格式用来发送给加密方</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --armor --export receiver@example.com
+</pre>
+</div>
+<ul class="org-ul">
+<li>（作为加密方）导入对方的public key</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --import receiver_public.key
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-orgheadline6" class="outline-2">
 <h2 id="orgheadline6">一次使用GPG的实践</h2>
 </div>
