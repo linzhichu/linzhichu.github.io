@@ -45,12 +45,15 @@ tags: encryption
 <div id="outline-container-orgheadline3" class="outline-3">
 <h3 id="orgheadline3">hybrid cryptography</h3>
 <div class="outline-text-3" id="text-orgheadline3">
+<p>
+顾名思义，hybrid加密结合了以上两种加密方式，具体做法是：数据采用symmetric key加密，但是本身这个key用public key进行加密。还是用我们之前的例子，相当于信息的接收方先把和钥匙配对的锁给了发送方，发送方随机生成了密码本，然后将信息用这个密码本加密，最后将密码本用接收方给的锁锁进盒子；接收方先用自己的钥匙解开锁后得到密码本，再用密码本解码信息。
+这样的方式很巧妙地结合了两种加密方式的优点：public key用来加密symmetric key的key，保密性好；数据用symmetric key加密，加密解密都简单。
+</p>
 
 <div id="orgparagraph1" class="figure">
-<p><object type="image/svg+xml" data="https://en.wikipedia.org/wiki/Pretty_Good_Privacy#/media/File:PGP_diagram.svg" >
-Sorry, your browser does not support SVG.</object>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/PGP_diagram.svg/575px-PGP_diagram.svg.png" alt="575px-PGP_diagram.svg.png" />
 </p>
-<p><span class="figure-number">Figure 1:</span> This is the caption for the next figure link (or table)</p>
+<p><span class="figure-number">Figure 1:</span> PGP协议的加密和解密过程示意图</p>
 </div>
 </div>
 </div>
