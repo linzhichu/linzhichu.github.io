@@ -5,7 +5,7 @@ categories: computers
 tags: encryption
 ---
 <p>
-<a href="https://en.wikipedia.org/wiki/GNU_Privacy_Guard">GPG</a> (GNU Privacy Guard)是基于OpenPGP协议的一个加密程序，而OpenPGP本身是基于<a href="https://en.wikipedia.org/wiki/Pretty_Good_Privacy">Pretty Good Privacy</a> 的一个开源协议。
+<a href="https://en.wikipedia.org/wiki/GNU_Privacy_Guard">GPG</a> (GNU Privacy Guard)是基于OpenPGP协议的一个加密程序，而OpenPGP本身是基于<a href="https://en.wikipedia.org/wiki/Pretty_Good_Privacy">Pretty Good Privacy</a> （简称PGP）的一个开源协议。
 </p>
 <div id="outline-container-orgheadline4" class="outline-2">
 <h2 id="orgheadline4">几种不同的加密方法</h2>
@@ -93,9 +93,37 @@ tags: encryption
 <pre class="src src-sh">gpg --import receiver_public.key
 </pre>
 </div>
-</div>
-</div>
+<ul class="org-ul">
+<li>为/receiver@example.com/加密文件</li>
+</ul>
+<div class="org-src-container">
 
+<pre class="src src-sh">gpg --output encrypted.txt.gpg --encrypt --recipient receiver@example.com plain.txt
+</pre>
+</div>
+<ul class="org-ul">
+<li>解密文件</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --output plain.txt --decrypt encrypted.txt.gpg
+</pre>
+</div>
+</div>
+</div>
 <div id="outline-container-orgheadline6" class="outline-2">
 <h2 id="orgheadline6">一次使用GPG的实践</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<p>
+某个项目中需要和另一方互相传送PGP加密文件，因此首先使用gpg生成本地public和private key，然后双方交换public key。加密时，需要生成双方都能解密的文件，因此使用以下命令为加密文件添加多个接收方：
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">gpg --output encrypted.gpg --encrypt --recipient receiver1@example.com --recipient receiver2@example.com plain.txt
+</pre>
+</div>
+<p>
+实现的原理是将symmetric key加密的key用两个public key分别加密了一次（相当于将密码本放进两个有不同的锁的盒子，有其中任意一个锁的钥匙就能解密了）。
+</p>
+</div>
 </div>
