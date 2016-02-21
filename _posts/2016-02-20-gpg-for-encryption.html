@@ -15,20 +15,35 @@ tags: encryption
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #87cefa;">f</span>(&#21457;&#36865;&#25991;&#26412;, &#23494;&#30721;&#26412;)=&#21152;&#23494;&#25991;&#26412; -&gt; &#21457;&#36865; -&gt; g(&#21152;&#23494;&#25991;&#26412;, &#23494;&#30721;&#26412;)=&#35299;&#23494;&#21518;&#25991;&#26412;
+<pre class="src src-sh"><span style="color: #87cefa;">enc</span>(&#21457;&#36865;&#25991;&#26412;, &#23494;&#30721;&#26412;)=&#21152;&#23494;&#25991;&#26412; -&gt; &#21457;&#36865; -&gt; dec(&#21152;&#23494;&#25991;&#26412;, &#23494;&#30721;&#26412;)=&#35299;&#23494;&#21518;&#25991;&#26412;
 </pre>
 </div>
+<p>
+这种加密方式的优点是加密/解密过程的复杂度很低，缺点是密码本一旦泄露会导致所有加密失效。
+</p>
 </div>
 </div>
-
 <div id="outline-container-orgheadline2" class="outline-3">
 <h3 id="orgheadline2">public-key cryptography</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+想象一下我们有一个钥匙和一把这个钥匙可以开的锁，我们可以把这个锁交给需要给我们发送加密信息的人，他把信息用我们给的锁锁在一个盒子里(相当于加密)，只有有这把钥匙的人才能打开这个盒子（相当于解密）。在实际的加密过程中，接收加密信息的一方要生成一对 /public/private key/，将public key发给需要向他发送加密信息的人，所有的加密信息会用public key进行加密，再由private key进行解密。
+</p>
+<blockquote>
+<p>
+<b>注意</b> ，我们的比喻和真实的public-key加密有一个极其重要的区别，从一把锁能配出一把钥匙，但是从public key并不能恢复出private key。
+</p>
+</blockquote>
+<p>
+和symmetric-key的加密相比，这种加密方式的优点很明显，就是只要保存好private key，就不会被泄密，因此泄密概率大大降低。但是缺点是，当信息量较大时，加密和解密的过程计算开销较大。
+</p>
 </div>
-
+</div>
 <div id="outline-container-orgheadline3" class="outline-3">
 <h3 id="orgheadline3">hybrid cryptography</h3>
 </div>
 </div>
+
 <div id="outline-container-orgheadline5" class="outline-2">
 <h2 id="orgheadline5">常用GPG命令</h2>
 </div>
