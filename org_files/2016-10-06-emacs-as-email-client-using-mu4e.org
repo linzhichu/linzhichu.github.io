@@ -1,0 +1,91 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 通过mu4e用Emacs作为邮件客户端
+categories: computers
+tags: emacs
+---
+#+END_HTML
+
+在尝试了一个月免费版的[[http://nylas.com][Nylas N1]]后，由于付费版价格太不合理然后免费版需要自己搭服务，放弃了继续使用的想法。在寻找一个好用的email客户端的过程中尝试了各种方案：
++ thunderbird: 许多Linux发行版的默认客户端，功能还算OK，UI实在是太过时了
++ geary: 好象是Elementary OS的默认客户端，但是在xfce下缺少很多UI效果
++ 其他的类似KMail，Evolution，UI类似thunderbird，也是不入法眼
+综合考虑，最后决定尝试一下Emacs下的mu4e作为解决方案，毕竟Emacs操作熟练，既然UI都不好看，干脆不要UI直接终端了
+/主要参考[[https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents][mu4e官方文档]] 和 [[https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/][这篇blog]] /
+* 安装mu4e和offlineimap
+[[https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents][mu4e]] 是[[http://www.djcbsoftware.nl/code/mu/][mu]] 的一个Emacs前端，而mu本身是一个邮件搜索引擎，所以mu4e的很多操作都是基于搜索的。在Ubuntu下安装很简单
+#+BEGIN_SRC sh
+sudo apt-get install libgmime-2.6-dev libxapian-dev
+sudo apt-get install guile-2.0-dev html2text xdg-utils
+git clone https://github.com/djcb/mu.git
+cd mu
+autoreconf -i && ./configure && make
+sudo make install
+#+END_SRC
+但是mu本身不是一个收发邮件的工具，可以使用任何支持 =Maildir= 结构的邮件收发程序。我使用 =offlineimap= 来接收邮件。安装后，配置 =~/.offlineimaprc= 如下
+#+BEGIN_SRC sh
+[general]
+accounts = myaccountname
+maxsyncaccounts = 3
+ 
+[Account myaccountname]
+localrepository = Local
+remoterepository = Remote
+# speeds up syncing!
+status_backend = sqlite
+# -1: always do quick updates
+#  0: never do quick updates
+quick = -1
+# Minutes between syncs
+#autorefresh = 5
+
+[Repository Local]
+type = Maildir
+localfolders = ~/Maildir
+ 
+[Repository Remote]
+type = IMAP
+remotehost = yourimapserver
+remoteuser = user
+remotepass = password
+ssl = yes
+# new comodo fingerprint (SHA1)
+cert_fingerprint = sha1fingerprint
+# use at least two threads to sync mail (speeds up)
+maxconnections = 2
+# realdelete = yes
+#+END_SRC
+
+配置好后可以使用
+#+BEGIN_SRC sh
+offlineimap --dry-run
+#+END_SRC
+来测试连接是否OK。
+我在配置中碰到几个问题：
+1. 使用以下命令获取 =cert_fingerprint=
+#+BEGIN_SRC sh
+#获取证书
+openssl s_client -CApath /etc/ssl/certs -connect yourimapserver:imaps -showcerts | perl -ne 'print if /BEGIN/../END/; print STDERR if /return/' > scratch/exmail.cert
+#验证证书是否正确
+openssl s_client -CAfile scratch/exmail.cert  -connect yourimapserver:imaps 2>&1 </dev/null
+#生成fingerprint
+openssl x509 -in scratch/exmail.cert -sha1 -noout -fingerprint
+#+END_SRC
+2. 不使用自动更新，因为我们会通过mu4e调用offlineimap，offlineimap本身不需要自动更新邮件，否则会有冲突
+#+BEGIN_SRC sh
+# 不开启自动刷新
+#autorefresh = 5
+#+END_SRC
+
+如果一切正常，这时候可以在终端测试一下了。先用offlineimap获取所有邮件，应该会在 =HOME= 下生成 =Maildir= 。尝试一下mu的检索功能
+#+BEGIN_SRC sh
+$ mu find nylas
+Tue 13 Sep 2016 06:24:46 AM CST Michael Grinich <michael@nylas.com> Get 3 months of free Nylas Pro by helping us test a new feature
+Tue 27 Sep 2016 11:00:22 PM CST Michael Grinich <michael@nylas.com> Nylas N1 now integrates with Salesforce
+Tue 04 Oct 2016 11:05:10 PM CST Michael from Nylas <michael@nylas.com> Inline images and thread sharing are here!
+#+END_SRC
+
+* 定制mu4e

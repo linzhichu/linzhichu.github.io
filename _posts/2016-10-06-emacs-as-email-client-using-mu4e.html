@@ -15,14 +15,108 @@ tags: emacs
 </ul>
 <p>
 综合考虑，最后决定尝试一下Emacs下的mu4e作为解决方案，毕竟Emacs操作熟练，既然UI都不好看，干脆不要UI直接终端了
+/主要参考<a href="https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents">mu4e官方文档</a> 和 <a href="https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/">这篇blog</a> /
 </p>
-
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1">安装mu4e</h2>
+<h2 id="orgheadline1">安装mu4e和offlineimap</h2>
 <div class="outline-text-2" id="text-orgheadline1">
 <p>
-mu4e是mu的一个Emacs前端
+<a href="https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents">mu4e</a> 是<a href="http://www.djcbsoftware.nl/code/mu/">mu</a> 的一个Emacs前端，而mu本身是一个邮件搜索引擎，所以mu4e的很多操作都是基于搜索的。在Ubuntu下安装很简单
 </p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install libgmime-2.6-dev libxapian-dev
+sudo apt-get install guile-2.0-dev html2text xdg-utils
+git clone https://github.com/djcb/mu.git
+<span style="color: #76ee00;">cd</span> mu
+autoreconf -i &amp;&amp; ./configure &amp;&amp; make
+sudo make install
+</pre>
+</div>
+<p>
+但是mu本身不是一个收发邮件的工具，可以使用任何支持 <code>Maildir</code> 结构的邮件收发程序。我使用 <code>offlineimap</code> 来接收邮件。安装后，配置 <code>~/.offlineimaprc</code> 如下
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">[general]
+accounts = myaccountname
+maxsyncaccounts = 3
+
+[Account myaccountname]
+localrepository = Local
+remoterepository = Remote
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">speeds up syncing!</span>
+status_backend = sqlite
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">-1: always do quick updates</span>
+<span style="color: #cd853f;">#  </span><span style="color: #cd853f;">0: never do quick updates</span>
+quick = -1
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">Minutes between syncs</span>
+<span style="color: #cd853f;">#</span><span style="color: #cd853f;">autorefresh = 5</span>
+
+[Repository Local]
+<span style="color: #76ee00;">type</span> = Maildir
+localfolders = ~/Maildir
+
+[Repository Remote]
+<span style="color: #76ee00;">type</span> = IMAP
+remotehost = yourimapserver
+remoteuser = user
+remotepass = password
+ssl = yes
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">new comodo fingerprint (SHA1)</span>
+cert_fingerprint = sha1fingerprint
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">use at least two threads to sync mail (speeds up)</span>
+maxconnections = 2
+<span style="color: #cd853f;"># </span><span style="color: #cd853f;">realdelete = yes</span>
+</pre>
+</div>
+
+<p>
+配置好后可以使用
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">offlineimap --dry-run
+</pre>
+</div>
+<p>
+来测试连接是否OK。
+我在配置中碰到几个问题：
+</p>
+<ol class="org-ol">
+<li>使用以下命令获取 <code>cert_fingerprint</code></li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#33719;&#21462;&#35777;&#20070;</span>
+openssl s_client -CApath /etc/ssl/certs -connect yourimapserver:imaps -showcerts | perl -ne <span style="color: #ffa07a;">'print if /BEGIN/../END/; print STDERR if /return/'</span> &gt; scratch/exmail.cert
+<span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#39564;&#35777;&#35777;&#20070;&#26159;&#21542;&#27491;&#30830;</span>
+openssl s_client -CAfile scratch/exmail.cert  -connect yourimapserver:imaps 2&gt;&amp;1 &lt;/dev/null
+<span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#29983;&#25104;fingerprint</span>
+openssl x509 -in scratch/exmail.cert -sha1 -noout -fingerprint
+</pre>
+</div>
+<ol class="org-ol">
+<li>不使用自动更新，因为我们会通过mu4e调用offlineimap，offlineimap本身不需要自动更新邮件，否则会有冲突</li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #cd853f;"># </span><span style="color: #cd853f;">&#19981;&#24320;&#21551;&#33258;&#21160;&#21047;&#26032;</span>
+<span style="color: #cd853f;">#</span><span style="color: #cd853f;">autorefresh = 5</span>
+</pre>
+</div>
+
+<p>
+如果一切正常，这时候可以在终端测试一下了。先用offlineimap获取所有邮件，应该会在 <code>HOME</code> 下生成 <code>Maildir</code> 。尝试一下mu的检索功能
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ mu find nylas
+Tue 13 Sep 2016 06:24:46 AM CST Michael Grinich <a href="mailto:michael%40nylas.com">&lt;michael@nylas.com&gt;</a> Get 3 months of free Nylas Pro by helping us test a new feature
+Tue 27 Sep 2016 11:00:22 PM CST Michael Grinich <a href="mailto:michael%40nylas.com">&lt;michael@nylas.com&gt;</a> Nylas N1 now integrates with Salesforce
+Tue 04 Oct 2016 11:05:10 PM CST Michael from Nylas <a href="mailto:michael%40nylas.com">&lt;michael@nylas.com&gt;</a> Inline images and thread sharing are here!
+</pre>
+</div>
 </div>
 </div>
 
