@@ -15,10 +15,10 @@ tags: emacs
 </ul>
 <p>
 综合考虑，最后决定尝试一下Emacs下的mu4e作为解决方案，毕竟Emacs操作熟练，既然UI都不好看，干脆不要UI直接终端了
-/主要参考<a href="https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents">mu4e官方文档</a> 和 <a href="https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/">这篇blog</a> /
+ <b>主要参考<a href="https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents">mu4e官方文档</a> 和 <a href="https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/">这篇blog</a></b>
 </p>
 <div id="outline-container-orgheadline1" class="outline-2">
-<h2 id="orgheadline1">安装mu4e和offlineimap</h2>
+<h2 id="orgheadline1">安装mu4e和基本邮件收发</h2>
 <div class="outline-text-2" id="text-orgheadline1">
 <p>
 <a href="https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents">mu4e</a> 是<a href="http://www.djcbsoftware.nl/code/mu/">mu</a> 的一个Emacs前端，而mu本身是一个邮件搜索引擎，所以mu4e的很多操作都是基于搜索的。在Ubuntu下安装很简单
@@ -28,7 +28,7 @@ tags: emacs
 <pre class="src src-sh">sudo apt-get install libgmime-2.6-dev libxapian-dev
 sudo apt-get install guile-2.0-dev html2text xdg-utils
 git clone https://github.com/djcb/mu.git
-<span style="color: #76ee00;">cd</span> mu
+<span style="color: #1abc9c;">cd</span> mu
 autoreconf -i &amp;&amp; ./configure &amp;&amp; make
 sudo make install
 </pre>
@@ -45,29 +45,29 @@ maxsyncaccounts = 3
 [Account myaccountname]
 localrepository = Local
 remoterepository = Remote
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">speeds up syncing!</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">speeds up syncing!</span>
 status_backend = sqlite
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">-1: always do quick updates</span>
-<span style="color: #cd853f;">#  </span><span style="color: #cd853f;">0: never do quick updates</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">-1: always do quick updates</span>
+<span style="color: #7f8c8d;">#  </span><span style="color: #95a5a6;">0: never do quick updates</span>
 quick = -1
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">Minutes between syncs</span>
-<span style="color: #cd853f;">#</span><span style="color: #cd853f;">autorefresh = 5</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">Minutes between syncs</span>
+<span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">autorefresh = 5</span>
 
 [Repository Local]
-<span style="color: #76ee00;">type</span> = Maildir
+<span style="color: #1abc9c;">type</span> = Maildir
 localfolders = ~/Maildir
 
 [Repository Remote]
-<span style="color: #76ee00;">type</span> = IMAP
+<span style="color: #1abc9c;">type</span> = IMAP
 remotehost = yourimapserver
 remoteuser = user
 remotepass = password
 ssl = yes
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">new comodo fingerprint (SHA1)</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">new comodo fingerprint (SHA1)</span>
 cert_fingerprint = sha1fingerprint
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">use at least two threads to sync mail (speeds up)</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">use at least two threads to sync mail (speeds up)</span>
 maxconnections = 2
-<span style="color: #cd853f;"># </span><span style="color: #cd853f;">realdelete = yes</span>
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">realdelete = yes</span>
 </pre>
 </div>
 
@@ -83,26 +83,26 @@ maxconnections = 2
 来测试连接是否OK。
 我在配置中碰到几个问题：
 </p>
-<ol class="org-ol">
+<ul class="org-ul">
 <li>使用以下命令获取 <code>cert_fingerprint</code></li>
-</ol>
+</ul>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#33719;&#21462;&#35777;&#20070;</span>
-openssl s_client -CApath /etc/ssl/certs -connect yourimapserver:imaps -showcerts | perl -ne <span style="color: #ffa07a;">'print if /BEGIN/../END/; print STDERR if /return/'</span> &gt; scratch/exmail.cert
-<span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#39564;&#35777;&#35777;&#20070;&#26159;&#21542;&#27491;&#30830;</span>
+<pre class="src src-sh"><span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">&#33719;&#21462;&#35777;&#20070;</span>
+openssl s_client -CApath /etc/ssl/certs -connect yourimapserver:imaps -showcerts | perl -ne <span style="color: #2ecc71;">'print if /BEGIN/../END/; print STDERR if /return/'</span> &gt; scratch/exmail.cert
+<span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">&#39564;&#35777;&#35777;&#20070;&#26159;&#21542;&#27491;&#30830;</span>
 openssl s_client -CAfile scratch/exmail.cert  -connect yourimapserver:imaps 2&gt;&amp;1 &lt;/dev/null
-<span style="color: #cd853f;">#</span><span style="color: #cd853f;">&#29983;&#25104;fingerprint</span>
+<span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">&#29983;&#25104;fingerprint</span>
 openssl x509 -in scratch/exmail.cert -sha1 -noout -fingerprint
 </pre>
 </div>
-<ol class="org-ol">
+<ul class="org-ul">
 <li>不使用自动更新，因为我们会通过mu4e调用offlineimap，offlineimap本身不需要自动更新邮件，否则会有冲突</li>
-</ol>
+</ul>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #cd853f;"># </span><span style="color: #cd853f;">&#19981;&#24320;&#21551;&#33258;&#21160;&#21047;&#26032;</span>
-<span style="color: #cd853f;">#</span><span style="color: #cd853f;">autorefresh = 5</span>
+<pre class="src src-sh"><span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">&#19981;&#24320;&#21551;&#33258;&#21160;&#21047;&#26032;</span>
+<span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">autorefresh = 5</span>
 </pre>
 </div>
 
@@ -117,9 +117,172 @@ Tue 27 Sep 2016 11:00:22 PM CST Michael Grinich <a href="mailto:michael%40nylas.
 Tue 04 Oct 2016 11:05:10 PM CST Michael from Nylas <a href="mailto:michael%40nylas.com">&lt;michael@nylas.com&gt;</a> Inline images and thread sharing are here!
 </pre>
 </div>
+<p>
+在 <code>.emacs</code> 中配置mu4e使用 <code>offlineimap</code> 定时收取邮件
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(<span style="color: #9b59b6;">require</span> '<span style="color: #e67e22;">mu4e</span>)
+(setq
+  mu4e-get-mail-command <span style="color: #2ecc71;">"offlineimap"</span>   <span style="color: #7f8c8d;">;; </span><span style="color: #95a5a6;">or fetchmail, or ...</span>
+  mu4e-update-interval 60
+  mu4e-headers-auto-update t)
+</pre>
+</div>
+<p>
+mu4e默认使用emacs的 <code>mail-send</code> 函数发送邮件，使用时会导致emacs挂起，改用系统命令 <code>sendmail</code> 更为方便，只需要以下配置
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp"><span style="color: #7f8c8d;">;;</span><span style="color: #95a5a6;">in .emacs</span>
+(setq message-send-mail-function 'message-send-mail-with-sendmail)
+</pre>
+</div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline2" class="outline-2">
 <h2 id="orgheadline2">定制mu4e</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<p>
+使用mu4e的一大好处就是定制相对容易，本身留出了很多可供定制的接口。举几个例子：
+</p>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">定制header</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+比如我们希望更改邮件列表模式中的默认显示信息，可以通过修改 <code>mu4e-header-fields</code> 这个变量
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(setq mu4e-headers-fields
+  '( (<span style="color: #1abc9c;">:more-human-date</span>    .   18)
+     (<span style="color: #1abc9c;">:flags</span>         .    6)
+     (<span style="color: #1abc9c;">:from-or-to</span>    .   22)
+     (<span style="color: #1abc9c;">:subject</span>       .   nil)))
+</pre>
+</div>
+<p>
+其中像 <code>flags</code>, <code>subject</code> 都是mu4e本身的header-field， <code>more-human-date</code> 是自己定义的一个字段，是这么定义的
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(<span style="color: #9b59b6;">defun</span> <span style="color: #3498db;">mu4e~headers-more-human-date</span> (msg)
+  <span style="color: #bdc3c7;">"Show a 'more human' date.  If the date is today or yesterday,</span>
+<span style="color: #bdc3c7;">show the time, otherwise, show the date. The formats used for</span>
+<span style="color: #bdc3c7;">date and time are `</span><span style="color: #e67e22;">mu4e-headers-date-format</span><span style="color: #bdc3c7;">' and</span>
+<span style="color: #bdc3c7;">`</span><span style="color: #e67e22;">mu4e-headers-time-format</span><span style="color: #bdc3c7;">'."</span>
+  (<span style="color: #9b59b6;">let</span> ((date (mu4e-msg-field msg <span style="color: #1abc9c;">:date</span>)))
+    (<span style="color: #9b59b6;">if</span> (equal date '(0 0 0))
+      <span style="color: #2ecc71;">"None"</span>
+      (<span style="color: #9b59b6;">let</span> ((day1 (decode-time date))
+             (day2 (decode-time (current-time))))
+        (<span style="color: #9b59b6;">cond</span> ((and
+                (eq (nth 3 day1) (nth 3 day2))  <span style="color: #7f8c8d;">;; </span><span style="color: #95a5a6;">day</span>
+                (eq (nth 4 day1) (nth 4 day2))  <span style="color: #7f8c8d;">;; </span><span style="color: #95a5a6;">month</span>
+                (eq (nth 5 day1) (nth 5 day2))) <span style="color: #7f8c8d;">;; </span><span style="color: #95a5a6;">year</span>
+               (format-time-string mu4e-headers-time-format date))
+              ((eq (- (time-to-days (current-time)) (time-to-days date)) 1)
+               (format-time-string mu4e-headers-yesterday-time-format date))
+              (t
+               (format-time-string mu4e-headers-date-format date)))))))
+
+(defcustom mu4e-headers-yesterday-time-format <span style="color: #2ecc71;">"YesterD-%H:%M"</span>
+  <span style="color: #bdc3c7;">"Time format to use in the headers view for yesterday's</span>
+<span style="color: #bdc3c7;">messages.  In the format of `</span><span style="color: #e67e22;">format-time-string</span><span style="color: #bdc3c7;">'."</span>
+  <span style="color: #1abc9c;">:type</span>  'string
+  <span style="color: #1abc9c;">:group</span> 'mu4e-headers)
+
+(add-to-list 'mu4e-header-info-custom
+             '(<span style="color: #1abc9c;">:more-human-date</span> .
+                         (<span style="color: #1abc9c;">:name</span> <span style="color: #2ecc71;">"Date"</span>
+                          <span style="color: #1abc9c;">:shortname</span> <span style="color: #2ecc71;">"Date"</span>
+                          <span style="color: #1abc9c;">:help</span> <span style="color: #2ecc71;">"Date in even more human-friendly format"</span>
+                          <span style="color: #1abc9c;">:function</span> mu4e~headers-more-human-date)))
+</pre>
+</div>
+<p>
+这样当天的邮件会显示 <code>11:22</code> ，昨天的会显示 <code>YesterD-15:37</code> ，更早的会显示 <code>09/05/16,Mon</code> 。
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">bookmark</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+mu4e中的 <code>bookmark</code> 可以通过 <code>b &lt;key&gt;</code> 的操作快速进行搜索，默认的快捷标签包括 <code>b u</code> (未读邮件)， <code>b t</code> （今天的邮件）等，可以根据需求自行添加。
+比如增加一个搜索所有带附件的邮件的书签和一个标星号的邮件的书签
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(add-to-list 'mu4e-bookmarks
+             '(<span style="color: #2ecc71;">"flag:flagged"</span>       <span style="color: #2ecc71;">"Starred messages"</span>     ?f))
+(add-to-list 'mu4e-bookmarks
+             '(<span style="color: #2ecc71;">"flag:attach"</span>       <span style="color: #2ecc71;">"Messages with attachment"</span>     ?a))
+</pre>
+</div>
+<p>
+其中 <code>flag:flagged</code> 等是mu的搜索命令，更多的搜索用法可以参考<a href="https://www.djcbsoftware.nl/code/mu/mu4e/Queries.html">mu强大的query命令</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">action</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+mu4e默认支持在header-view或者message-view中快速进行某些操作，比如在header-view中用 <code>a</code> 就会看到默认的action，当然可以增加更多。
+比如增加一个“搜索当前发件人的所有邮件”的快捷命令
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(<span style="color: #9b59b6;">defun</span> <span style="color: #3498db;">search-for-sender</span> (msg)
+  <span style="color: #bdc3c7;">"Search for messages sent by the sender of the message at point."</span>
+  (mu4e-headers-search
+    (concat <span style="color: #2ecc71;">"from:"</span> (cdar (mu4e-message-field msg <span style="color: #1abc9c;">:from</span>)))))
+
+<span style="color: #7f8c8d;">;; </span><span style="color: #95a5a6;">define 'x' as the shortcut</span>
+(add-to-list 'mu4e-view-actions
+             '(<span style="color: #2ecc71;">"xsearch for sender"</span> . search-for-sender) t)
+(add-to-list 'mu4e-headers-actions
+             '(<span style="color: #2ecc71;">"xsearch for sender"</span> . search-for-sender) t)
+</pre>
+</div>
+<p>
+我把这个快捷键同时加到了header-view和message-view
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">alert</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+在emacs中收邮件中一个不完美的地方就是缺少新邮件的桌面提醒，暂时用了一个不完美的解决方案，就是通过emacs的 <code>alert</code> 发出一个桌面提醒
+</p>
+<div class="org-src-container">
+
+<pre class="src src-lisp">(<span style="color: #9b59b6;">require</span> '<span style="color: #e67e22;">alert</span>)
+(setq alert-fade-time 90)
+(setq alert-default-style 'libnotify)
+(add-hook 'mu4e-index-updated-hook 'mu4e~headers-do-auto-update)
+(add-hook 'mu4e-index-updated-hook
+  (<span style="color: #9b59b6;">defun</span> <span style="color: #3498db;">new-mail-notify</span> ()
+    (alert <span style="color: #2ecc71;">"New mail coming"</span> <span style="color: #1abc9c;">:title</span> <span style="color: #2ecc71;">"mu4e"</span>)))
+</pre>
+</div>
+<p>
+之所以不完美是因为两个原因：这个提醒不能长留桌面而是在一定时间后消失;提醒是绑定在 <code>mu4e-index-update-hook</code> 上，但是实际上邮件的状态变化也会触发这个hook（比如变成了未读）
+有一个 <code>mu4e-alert</code> 的package，但是配置后没有起作用
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">总结</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<p>
+总的来说配置确实花了不少时间，但是配置好使用两周后还是很满意的，完全不想再切换别的客户端或者使用浏览器来收邮件了
+</p>
+</div>
 </div>

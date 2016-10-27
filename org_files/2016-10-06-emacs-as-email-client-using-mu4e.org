@@ -14,8 +14,8 @@ tags: emacs
 + geary: 好象是Elementary OS的默认客户端，但是在xfce下缺少很多UI效果
 + 其他的类似KMail，Evolution，UI类似thunderbird，也是不入法眼
 综合考虑，最后决定尝试一下Emacs下的mu4e作为解决方案，毕竟Emacs操作熟练，既然UI都不好看，干脆不要UI直接终端了
-/主要参考[[https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents][mu4e官方文档]] 和 [[https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/][这篇blog]] /
-* 安装mu4e和offlineimap
+ *主要参考[[https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents][mu4e官方文档]] 和 [[https://vxlabs.com/2014/06/06/configuring-emacs-mu4e-with-nullmailer-offlineimap-and-multiple-identities/][这篇blog]]*
+* 安装mu4e和基本邮件收发
 [[https://www.djcbsoftware.nl/code/mu/mu4e/index.html#SEC_Contents][mu4e]] 是[[http://www.djcbsoftware.nl/code/mu/][mu]] 的一个Emacs前端，而mu本身是一个邮件搜索引擎，所以mu4e的很多操作都是基于搜索的。在Ubuntu下安装很简单
 #+BEGIN_SRC sh
 sudo apt-get install libgmime-2.6-dev libxapian-dev
@@ -65,7 +65,7 @@ offlineimap --dry-run
 #+END_SRC
 来测试连接是否OK。
 我在配置中碰到几个问题：
-1. 使用以下命令获取 =cert_fingerprint=
++ 使用以下命令获取 =cert_fingerprint=
 #+BEGIN_SRC sh
 #获取证书
 openssl s_client -CApath /etc/ssl/certs -connect yourimapserver:imaps -showcerts | perl -ne 'print if /BEGIN/../END/; print STDERR if /return/' > scratch/exmail.cert
@@ -74,7 +74,7 @@ openssl s_client -CAfile scratch/exmail.cert  -connect yourimapserver:imaps 2>&1
 #生成fingerprint
 openssl x509 -in scratch/exmail.cert -sha1 -noout -fingerprint
 #+END_SRC
-2. 不使用自动更新，因为我们会通过mu4e调用offlineimap，offlineimap本身不需要自动更新邮件，否则会有冲突
++ 不使用自动更新，因为我们会通过mu4e调用offlineimap，offlineimap本身不需要自动更新邮件，否则会有冲突
 #+BEGIN_SRC sh
 # 不开启自动刷新
 #autorefresh = 5
@@ -87,5 +87,106 @@ Tue 13 Sep 2016 06:24:46 AM CST Michael Grinich <michael@nylas.com> Get 3 months
 Tue 27 Sep 2016 11:00:22 PM CST Michael Grinich <michael@nylas.com> Nylas N1 now integrates with Salesforce
 Tue 04 Oct 2016 11:05:10 PM CST Michael from Nylas <michael@nylas.com> Inline images and thread sharing are here!
 #+END_SRC
+在 =.emacs= 中配置mu4e使用 =offlineimap= 定时收取邮件
+#+BEGIN_SRC lisp
+(require 'mu4e)
+(setq
+  mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
+  mu4e-update-interval 60
+  mu4e-headers-auto-update t)
+#+END_SRC
+mu4e默认使用emacs的 =mail-send= 函数发送邮件，使用时会导致emacs挂起，改用系统命令 =sendmail= 更为方便，只需要以下配置
+#+BEGIN_SRC lisp
+;;in .emacs
+(setq message-send-mail-function 'message-send-mail-with-sendmail)
+#+END_SRC
 
 * 定制mu4e
+使用mu4e的一大好处就是定制相对容易，本身留出了很多可供定制的接口。举几个例子：
+** 定制header
+比如我们希望更改邮件列表模式中的默认显示信息，可以通过修改 =mu4e-header-fields= 这个变量
+#+BEGIN_SRC lisp
+(setq mu4e-headers-fields
+  '( (:more-human-date    .   18)
+     (:flags         .    6)
+     (:from-or-to    .   22)
+     (:subject       .   nil)))
+#+END_SRC
+其中像 =flags=, =subject= 都是mu4e本身的header-field， =more-human-date= 是自己定义的一个字段，是这么定义的
+#+BEGIN_SRC lisp
+(defun mu4e~headers-more-human-date (msg)
+  "Show a 'more human' date.  If the date is today or yesterday,
+show the time, otherwise, show the date. The formats used for
+date and time are `mu4e-headers-date-format' and
+`mu4e-headers-time-format'."
+  (let ((date (mu4e-msg-field msg :date)))
+    (if (equal date '(0 0 0))
+      "None"
+      (let ((day1 (decode-time date))
+	     (day2 (decode-time (current-time))))
+	(cond ((and
+		(eq (nth 3 day1) (nth 3 day2))	;; day
+		(eq (nth 4 day1) (nth 4 day2))	;; month
+		(eq (nth 5 day1) (nth 5 day2))) ;; year
+	       (format-time-string mu4e-headers-time-format date))
+	      ((eq (- (time-to-days (current-time)) (time-to-days date)) 1)
+	       (format-time-string mu4e-headers-yesterday-time-format date))
+	      (t
+	       (format-time-string mu4e-headers-date-format date)))))))
+
+(defcustom mu4e-headers-yesterday-time-format "YesterD-%H:%M"
+  "Time format to use in the headers view for yesterday's
+messages.  In the format of `format-time-string'."
+  :type  'string
+  :group 'mu4e-headers)
+
+(add-to-list 'mu4e-header-info-custom
+	     '(:more-human-date .
+			 (:name "Date"
+			  :shortname "Date"
+			  :help "Date in even more human-friendly format"
+			  :function mu4e~headers-more-human-date)))
+#+END_SRC
+这样当天的邮件会显示 =11:22= ，昨天的会显示 =YesterD-15:37= ，更早的会显示 =09/05/16,Mon= 。
+** bookmark
+mu4e中的 =bookmark= 可以通过 =b <key>= 的操作快速进行搜索，默认的快捷标签包括 =b u= (未读邮件)， =b t= （今天的邮件）等，可以根据需求自行添加。
+比如增加一个搜索所有带附件的邮件的书签和一个标星号的邮件的书签
+#+BEGIN_SRC lisp
+(add-to-list 'mu4e-bookmarks
+	     '("flag:flagged"       "Starred messages"     ?f))
+(add-to-list 'mu4e-bookmarks
+	     '("flag:attach"       "Messages with attachment"     ?a))
+#+END_SRC
+其中 =flag:flagged= 等是mu的搜索命令，更多的搜索用法可以参考[[https://www.djcbsoftware.nl/code/mu/mu4e/Queries.html][mu强大的query命令]]
+** action
+mu4e默认支持在header-view或者message-view中快速进行某些操作，比如在header-view中用 =a= 就会看到默认的action，当然可以增加更多。
+比如增加一个“搜索当前发件人的所有邮件”的快捷命令
+#+BEGIN_SRC lisp
+(defun search-for-sender (msg)
+  "Search for messages sent by the sender of the message at point."
+  (mu4e-headers-search
+    (concat "from:" (cdar (mu4e-message-field msg :from)))))
+
+;; define 'x' as the shortcut
+(add-to-list 'mu4e-view-actions
+	     '("xsearch for sender" . search-for-sender) t)
+(add-to-list 'mu4e-headers-actions
+	     '("xsearch for sender" . search-for-sender) t)
+#+END_SRC
+我把这个快捷键同时加到了header-view和message-view
+** alert
+在emacs中收邮件中一个不完美的地方就是缺少新邮件的桌面提醒，暂时用了一个不完美的解决方案，就是通过emacs的 =alert= 发出一个桌面提醒
+#+BEGIN_SRC lisp
+(require 'alert)
+(setq alert-fade-time 90)
+(setq alert-default-style 'libnotify)
+(add-hook 'mu4e-index-updated-hook 'mu4e~headers-do-auto-update)
+(add-hook 'mu4e-index-updated-hook
+  (defun new-mail-notify ()
+    (alert "New mail coming" :title "mu4e")))
+#+END_SRC 
+之所以不完美是因为两个原因：这个提醒不能长留桌面而是在一定时间后消失;提醒是绑定在 =mu4e-index-update-hook= 上，但是实际上邮件的状态变化也会触发这个hook（比如变成了未读）
+有一个 =mu4e-alert= 的package，但是配置后没有起作用
+
+* 总结
+总的来说配置确实花了不少时间，但是配置好使用两周后还是很满意的，完全不想再切换别的客户端或者使用浏览器来收邮件了
