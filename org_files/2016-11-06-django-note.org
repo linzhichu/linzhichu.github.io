@@ -1,0 +1,222 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: Django小笔记
+categories: computers
+tags: Python, Django
+---
+#+END_HTML
+
+** Django Notes
+** General
+
+1. Chinese support
+    + language code in settings.py
+    + utf-8 coding in any .py
+    + encoding header in html templates
+
+2. use django models in scrapy projects:
+   #+begin_src python
+   def setup_django_env(path):
+    import imp, os
+    from django.core.management import setup_environ
+    
+    f, filename, desc = imp.find_module('settings', [path])
+    project = imp.load_module('settings', f, filename, desc)       
+    
+    setup_environ(project)
+    
+# Add django project to sys.path
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(path, os.path.pardir)))
+ 
+setup_django_env('/home/zhichu/Projects/trip_proj/trip_proj/gotrip/gotrip/')
+   #+end_src
+** Model/Form/Query
+1. . =.filter= returns a queryset, i.e. you need to do a forloop to get individual instances
+2. =verbose_name= will be overriden if formfield is re-defined in forms.py; use =label= for form field instead
+ #+BEGIN_SRC python
+ class ItineraryForm(ModelForm):
+    start_date = forms.DateField(('%Y/%m/%d',), label = u'checkin_date', widget = forms.DateTimeInput(format='%Y/%m/%d', attrs={
+            'class':'input',
+            'size':'10'
+        }))
+ #+END_SRC
+3. date format should match between jquery widget and formfield setting
+4. for using =contenttype=, see my SO question [[http://stackoverflow.com/questions/12782847/django-using-contenttype-vs-multi-table-inheritance][  Django: using ContentType vs multi table inheritance]] and =trip/models.py= and =trip/views.py=
+ #+BEGIN_SRC python
+  hotelstay_ctype = ContentType.objects.get_for_model(HotelStay)
+  trip_event_list = TripEvent.objects.filter(content_type=hotelstay_ctype)
+  for trip_event in trip_event_list:
+      print trip_event.content_object.checkin_date
+ #+END_SRC
+5. filter objects by date:
+  #+BEGIN_SRC python
+  queryset=Itinerary.objects.filter(end_date__lt=date.today())
+  #+END_SRC
+6. filter ModelForm's ForeignKey field during initialization, by passing =user=request.user= through =*kwargs= to form's =__init__()= method:
+   #+BEGIN_SRC python
+   # in forms.py
+class HotelStayForm(ModelForm):
+...
+    def __init__(self, *args, **kwargs): #set initial value for field itinerary
+        user = kwargs.pop('user', '')
+        super(HotelStayForm, self).__init__(*args, **kwargs)
+        # only show itineraries belonging to request.user
+        self.fields['itinerary'].queryset = Itinerary.objects.filter(user=user)
+# in views.py
+@login_required()
+def add_hotelstay(request):
+    if request.method == 'POST': # If the form has been submitted...
+        form = HotelStayForm(request.POST, user=request.user) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            # Process the data in form.cleaned_data
+            # ...
+    else:
+        form = HotelStayForm(user=request.user) # user kwargs used in form to set initial value for itinerary field
+    return render_to_response('trip/add_itinerary.html', {
+        'form': form}, context_instance=RequestContext(request)
+    )
+   #+END_SRC
+7. attaching multiple models to a model, and show them in admin site, see this [[http://stackoverflow.com/questions/537593/multiple-images-per-model]]
+8. aggregate over reverse relationship and sort by aggregated value
+#+begin_src python
+   st_count=TrainStationDetail.objects.all().annotate(line_count=Count('trainlinedetail')).order_by('-line_count')
+#+end_src
+
+** View/Template
+1. passing variables from templates to callable methods is bad for security/maintainability; use =template tags= instead 
+2. use =reverse_lazy()= instead of =reverse()= for =success_url= in generic views
+3. to use message in generic views, override =form_valid()= method
+4. override =get_queryset()= to check object ownership
+5. =decorator= can be added to =urlConf= or =dispatch= method for generic views
+6. use multiple submit buttons:
+ #+BEGIN_SRC html
+ <input class="button" type="submit" name="_delete" value="finish">	
+  <input class="button" type="submit" name="_back" value="don't delete">	
+        if '_back' in self.request.POST:
+ #+END_SRC
+7. To update RequestContext(request) with extra context,
+   #+BEGIN_SRC python
+   context = RequestContext(request)
+   context.update({'friend_list':friend_list})
+   #+END_SRC
+   see this SO question [[http://stackoverflow.com/questions/38987/how-can-i-merge-union-two-python-dictionaries-in-a-single-expression][concatenate two dict]] for some related discussion.
+8. chaining template filters
+   #+BEGIN_SRC python
+   {{value|filter1:arg1|filter2:arg2}}
+   #+END_SRC
+9. showing localtime in template
+#+BEGIN_SRC html
+   {{datetime|time}} // gets localtime
+   {{datetime.time}} // gets utc time
+#+END_SRC
+** Test
+1. Simulating user login in a unittest
+   #+BEGIN_SRC python
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test.client import Client
+
+class TripTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.test_user = User.objects.create_user('testuser', 'test@test.com', 'password')
+
+    def user_login(self):
+        self.client.login(username='testuser', password='password')
+    
+    def tearDown(self):
+        self.test_user.delete()
+
+
+class SimpleTest(TripTestCase):
+    def test_list_itinerary_view(self):
+        self.user_login()
+        resp = self.client.get('/trip/list_itinerary/')
+        self.assertEqual(resp.status_code, 200)
+   #+END_SRC
+
+** Celery
+1. =pytz= needs to be installed to use celery beat
+2. run periodic background tasks:
+  #+BEGIN_SRC sh
+   ./manage.py celery beat --loglevel=INFO
+  #+END_SRC
+  run worker:
+  #+BEGIN_SRC sh
+   ./manage.py celery worker
+  #+END_SRC
+  using custom logging 
+  #+BEGIN_SRC sh
+    -l INFO -f worker.log
+  #+END_SRC
+  (using custom logging in celery seems very hard, if not using some nasty hack. Currently using celery-provided logging. The only complaint is worker.log gets DEBUG-level messages from MainProcess. Will look for a better logging solution in the future.)
+
+** south
+1. use south to migrate data after adding a field to a model:
+    + before changing the model,
+     #+BEGIN_SRC sh
+       ./manage.py schemamigration <appname>
+     #+END_SRC
+    + after changing the model,
+     #+BEGIN_SRC sh
+       ./manage.py schemamigration <appname>;
+       ./manage.py migrate <appname>
+     #+END_SRC
+2. for a legacy app, run
+   #+BEGIN_SRC sh
+     ./manage.py convert_to_south <appname>
+   #+END_SRC
+
+
+** tastypie
+   
+1. See this [[http://stackoverflow.com/questions/9468902/toggle-fields-to-be-full-in-the-url-for-tastypie][SO thread]] for methods to toggle 'full' through url 
+
+** deployment
+
+1. uwsgi+nginx: 
+  #+BEGIN_SRC sh
+   sudo apt-get install nginx
+   apt-get install build-essential python-dev libxml2-dev # uwsgi dependency
+   pip install uwsgi
+   bin/uwsgi --socket /tmp/uwsgi.sock --wsgi-file /mnt/scratch/test.py --chmod-socket=666
+   # serve django
+   bin/uwsgi --socket /tmp/uwsgi.sock --chdir /mnt/scratch/testapp/testdeploy/ --wsgi-file /mnt/scratch/testapp/testdeploy/testdeploy/wsgi.py  --virtualenv /usr/virtualenv --chmod-socket=666
+  #+END_SRC
+
+2. verify nginx conf file:
+#+begin_src sh
+   /usr/sbin/nginx -t -c conf_name.conf
+#+end_src
+
+3. uwsgi configurations
+  - use =master=true= and =pidfile= for easier management, e.g.
+    #+begin_src sh
+    uwsgi --reload pid_file
+    #+end_src
+  - use =stat\_server= for worker monitoring
+    #+begin_src sh
+    # in uwsgi.ini
+    stats = /tmp/uwsgi_stat.sock
+    # in shell
+    $ uwsgitop /tmp/uwsgi_stat.sock
+    #+end_src
+  - read uwsgitop output
+    | WID    | worker id                                              |
+    | %      | percentage of served requests by the worker            |
+    | PID    | process id of the worker                               |
+    | REQ    | number of managed requests                             |
+    | EXC    | number of raised exceptions                            |
+    | SIG    | number of managed uwsgi signals (NOT unix signals !!!) |
+    | STATUS | can be idle, busy, pause, cheaped or sig               |
+    | AVG    | average response time for the worker                   |
+    | RSS    | RSS memory (need --memory-report)                      |
+    | VSZ    | address space (need --memory-report)                   |
+    | TX     | transmitted data                                       |
+    | RunT   | running time                                           |
+
+    

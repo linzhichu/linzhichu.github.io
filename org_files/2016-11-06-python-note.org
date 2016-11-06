@@ -1,0 +1,56 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 一些值得记录的Python笔记
+categories: computers
+tags: Python
+---
+#+END_HTML
+
+* Python Note
+*** operator.itemgetter/attrgetter
+simple usage is like:
+#+BEGIN_SRC python
+>>> f=itemgetter(2)
+>>> l=(1,2,3)
+>>> f(l)
+3
+#+END_SRC
+
+It's very useful when applied to sorting, e.g., 
+#+BEGIN_SRC python
+## sorting students by weight (suppose student has attr. student.weight)
+ sorted(students, key=attrgetter('weight')
+#+END_SRC
+
+*** get class name of an instance
+#+BEGIN_SRC python
+ if (module.__class__.__name__==unicode)
+#+END_SRC
+*Update*: it's better to use a /classmethod/. See the next note.
+
+*** classmethod/staticmethod
+classmethod receives the *class* it's called on as the first argument (as /cls/); 
+regular instance method gets the *instance* it's called on as the first argument (as /self/);
+staticmethod gets either of them.
+
+classmethos is useful for alternative constructors.
+
+*** difference betweent /==/ and /is/
+#+begin_src python
+   a = [1,2]
+   b = [1,2]
+   a == b # returns True
+   a is b # returns False
+#+end_src
+~==~ checks the value, while ~is~ checks the object itself. See this SO thread
+http://stackoverflow.com/questions/132988/is-there-a-difference-between-and-is-in-python
+*** Misc
+1. By default, =.= in regex doesn't match newline (=\s= matches newline)
+
+2. use douban pypi
+#+begin_src sh
+pip install -i http://pypi.douban.com/simple/ gevent
+#+end_src

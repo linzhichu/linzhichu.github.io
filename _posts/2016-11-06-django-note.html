@@ -1,0 +1,413 @@
+---
+layout: post
+title: Django小笔记
+categories: computers
+tags: Python, Django
+---
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">Django Notes</h2>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">General</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<ol class="org-ol">
+<li>Chinese support
+<ul class="org-ul">
+<li>language code in settings.py</li>
+<li>utf-8 coding in any .py</li>
+<li>encoding header in html templates</li>
+</ul></li>
+
+<li><p>
+use django models in scrapy projects:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">   <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">setup_django_env</span>(path):
+    <span style="color: #9b59b6;">import</span> imp, os
+    <span style="color: #9b59b6;">from</span> django.core.management <span style="color: #9b59b6;">import</span> setup_environ
+
+    <span style="color: #e74c3c;">f</span>, <span style="color: #e74c3c;">filename</span>, <span style="color: #e74c3c;">desc</span> = imp.find_module(<span style="color: #2ecc71;">'settings'</span>, [path])
+    <span style="color: #e74c3c;">project</span> = imp.load_module(<span style="color: #2ecc71;">'settings'</span>, f, filename, desc)       
+
+    setup_environ(project)
+
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">Add django project to sys.path</span>
+    <span style="color: #9b59b6;">import</span> sys
+    sys.path.append(os.path.abspath(os.path.join(path, os.path.pardir)))
+
+setup_django_env(<span style="color: #2ecc71;">'/home/zhichu/Projects/trip_proj/trip_proj/gotrip/gotrip/'</span>)
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Model/Form/Query</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<ol class="org-ol">
+<li>. <code>.filter</code> returns a queryset, i.e. you need to do a forloop to get individual instances</li>
+<li><p>
+<code>verbose_name</code> will be overriden if formfield is re-defined in forms.py; use <code>label</code> for form field instead
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #9b59b6;">class</span> <span style="color: #f1c40f;">ItineraryForm</span>(ModelForm):
+   <span style="color: #e74c3c;">start_date</span> = forms.DateField((<span style="color: #2ecc71;">'%Y/%m/%d'</span>,), label = u<span style="color: #2ecc71;">'checkin_date'</span>, widget = forms.DateTimeInput(<span style="color: #1abc9c;">format</span>=<span style="color: #2ecc71;">'%Y/%m/%d'</span>, attrs={
+           <span style="color: #2ecc71;">'class'</span>:<span style="color: #2ecc71;">'input'</span>,
+           <span style="color: #2ecc71;">'size'</span>:<span style="color: #2ecc71;">'10'</span>
+       }))
+</pre>
+</div></li>
+<li>date format should match between jquery widget and formfield setting</li>
+<li><p>
+for using <code>contenttype</code>, see my SO question <a href="http://stackoverflow.com/questions/12782847/django-using-contenttype-vs-multi-table-inheritance">  Django: using ContentType vs multi table inheritance</a> and <code>trip/models.py</code> and <code>trip/views.py</code>
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #e74c3c;">hotelstay_ctype</span> = ContentType.objects.get_for_model(HotelStay)
+<span style="color: #e74c3c;">trip_event_list</span> = TripEvent.objects.<span style="color: #1abc9c;">filter</span>(content_type=hotelstay_ctype)
+<span style="color: #9b59b6;">for</span> trip_event <span style="color: #9b59b6;">in</span> trip_event_list:
+    <span style="color: #9b59b6;">print</span> trip_event.content_object.checkin_date
+</pre>
+</div></li>
+<li><p>
+filter objects by date:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #e74c3c;">queryset</span>=Itinerary.objects.<span style="color: #1abc9c;">filter</span>(end_date__lt=date.today())
+</pre>
+</div></li>
+<li><p>
+filter ModelForm's ForeignKey field during initialization, by passing <code>user=request.user</code> through <code>*kwargs</code> to form's <code>__init__()</code> method:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">   <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">in forms.py</span>
+<span style="color: #9b59b6;">class</span> <span style="color: #f1c40f;">HotelStayForm</span>(ModelForm):
+...
+    <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">__init__</span>(<span style="color: #9b59b6;">self</span>, *args, **kwargs): <span style="color: #7f8c8d;">#</span><span style="color: #95a5a6;">set initial value for field itinerary</span>
+        <span style="color: #e74c3c;">user</span> = kwargs.pop(<span style="color: #2ecc71;">'user'</span>, <span style="color: #2ecc71;">''</span>)
+        <span style="color: #1abc9c;">super</span>(HotelStayForm, <span style="color: #9b59b6;">self</span>).__init__(*args, **kwargs)
+        <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">only show itineraries belonging to request.user</span>
+        <span style="color: #9b59b6;">self</span>.fields[<span style="color: #2ecc71;">'itinerary'</span>]<span style="color: #e74c3c;">.queryset</span> = Itinerary.objects.<span style="color: #1abc9c;">filter</span>(user=user)
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">in views.py</span>
+<span style="color: #f1c40f;">@login_required</span>()
+<span style="color: #9b59b6;">def</span> <span style="color: #3498db;">add_hotelstay</span>(request):
+    <span style="color: #9b59b6;">if</span> request.method == <span style="color: #2ecc71;">'POST'</span>: <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">If the form has been submitted...</span>
+        <span style="color: #e74c3c;">form</span> = HotelStayForm(request.POST, user=request.user) <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">A form bound to the POST data</span>
+        <span style="color: #9b59b6;">if</span> form.is_valid(): <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">All validation rules pass</span>
+            <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">Process the data in form.cleaned_data</span>
+            <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">...</span>
+    <span style="color: #9b59b6;">else</span>:
+        <span style="color: #e74c3c;">form</span> = HotelStayForm(user=request.user) <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">user kwargs used in form to set initial value for itinerary field</span>
+    <span style="color: #9b59b6;">return</span> render_to_response(<span style="color: #2ecc71;">'trip/add_itinerary.html'</span>, {
+        <span style="color: #2ecc71;">'form'</span>: form}, context_instance=RequestContext(request)
+    )
+</pre>
+</div></li>
+<li>attaching multiple models to a model, and show them in admin site, see this <a href="http://stackoverflow.com/questions/537593/multiple-images-per-model">http://stackoverflow.com/questions/537593/multiple-images-per-model</a></li>
+<li>aggregate over reverse relationship and sort by aggregated value</li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #e74c3c;">st_count</span>=TrainStationDetail.objects.<span style="color: #1abc9c;">all</span>().annotate(line_count=Count(<span style="color: #2ecc71;">'trainlinedetail'</span>)).order_by(<span style="color: #2ecc71;">'-line_count'</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">View/Template</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<ol class="org-ol">
+<li>passing variables from templates to callable methods is bad for security/maintainability; use <code>template tags</code> instead</li>
+<li>use <code>reverse_lazy()</code> instead of <code>reverse()</code> for <code>success_url</code> in generic views</li>
+<li>to use message in generic views, override <code>form_valid()</code> method</li>
+<li>override <code>get_queryset()</code> to check object ownership</li>
+<li><code>decorator</code> can be added to <code>urlConf</code> or <code>dispatch</code> method for generic views</li>
+<li><p>
+use multiple submit buttons:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-html">&lt;<span style="color: #3498db;">input</span> <span style="color: #e74c3c;">class</span>=<span style="color: #2ecc71;">"button"</span> <span style="color: #e74c3c;">type</span>=<span style="color: #2ecc71;">"submit"</span> <span style="color: #e74c3c;">name</span>=<span style="color: #2ecc71;">"_delete"</span> <span style="color: #e74c3c;">value</span>=<span style="color: #2ecc71;">"finish"</span>&gt;     
+ &lt;<span style="color: #3498db;">input</span> <span style="color: #e74c3c;">class</span>=<span style="color: #2ecc71;">"button"</span> <span style="color: #e74c3c;">type</span>=<span style="color: #2ecc71;">"submit"</span> <span style="color: #e74c3c;">name</span>=<span style="color: #2ecc71;">"_back"</span> <span style="color: #e74c3c;">value</span>=<span style="color: #2ecc71;">"don't delete"</span>&gt;        
+       if '_back' in self.request.POST:
+</pre>
+</div></li>
+<li><p>
+To update RequestContext(request) with extra context,
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #e74c3c;">context</span> = RequestContext(request)
+context.update({<span style="color: #2ecc71;">'friend_list'</span>:friend_list})
+</pre>
+</div>
+<p>
+see this SO question <a href="http://stackoverflow.com/questions/38987/how-can-i-merge-union-two-python-dictionaries-in-a-single-expression">concatenate two dict</a> for some related discussion.
+</p></li>
+<li><p>
+chaining template filters
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">{{value|filter1:arg1|filter2:arg2}}
+</pre>
+</div></li>
+<li>showing localtime in template</li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-html">{{datetime|time}} // gets localtime
+{{datetime.time}} // gets utc time
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">Test</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<ol class="org-ol">
+<li><p>
+Simulating user login in a unittest
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #9b59b6;">from</span> django.contrib.auth.models <span style="color: #9b59b6;">import</span> User
+<span style="color: #9b59b6;">from</span> django.test <span style="color: #9b59b6;">import</span> TestCase
+<span style="color: #9b59b6;">from</span> django.test.client <span style="color: #9b59b6;">import</span> Client
+
+<span style="color: #9b59b6;">class</span> <span style="color: #f1c40f;">TripTestCase</span>(TestCase):
+    <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">setUp</span>(<span style="color: #9b59b6;">self</span>):
+        <span style="color: #9b59b6;">self</span>.client = Client()
+        <span style="color: #9b59b6;">self</span>.test_user = User.objects.create_user(<span style="color: #2ecc71;">'testuser'</span>, <span style="color: #2ecc71;">'test@test.com'</span>, <span style="color: #2ecc71;">'password'</span>)
+
+    <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">user_login</span>(<span style="color: #9b59b6;">self</span>):
+        <span style="color: #9b59b6;">self</span>.client.login(username=<span style="color: #2ecc71;">'testuser'</span>, password=<span style="color: #2ecc71;">'password'</span>)
+
+    <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">tearDown</span>(<span style="color: #9b59b6;">self</span>):
+        <span style="color: #9b59b6;">self</span>.test_user.delete()
+
+
+<span style="color: #9b59b6;">class</span> <span style="color: #f1c40f;">SimpleTest</span>(TripTestCase):
+    <span style="color: #9b59b6;">def</span> <span style="color: #3498db;">test_list_itinerary_view</span>(<span style="color: #9b59b6;">self</span>):
+        <span style="color: #9b59b6;">self</span>.user_login()
+        <span style="color: #e74c3c;">resp</span> = <span style="color: #9b59b6;">self</span>.client.get(<span style="color: #2ecc71;">'/trip/list_itinerary/'</span>)
+        <span style="color: #9b59b6;">self</span>.assertEqual(resp.status_code, 200)
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">Celery</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<ol class="org-ol">
+<li><code>pytz</code> needs to be installed to use celery beat</li>
+<li><p>
+run periodic background tasks:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">./manage.py celery beat --loglevel=INFO
+</pre>
+</div>
+<p>
+run worker:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">./manage.py celery worker
+</pre>
+</div>
+<p>
+using custom logging 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">-l INFO -f worker.log
+</pre>
+</div>
+<p>
+(using custom logging in celery seems very hard, if not using some nasty hack. Currently using celery-provided logging. The only complaint is worker.log gets DEBUG-level messages from MainProcess. Will look for a better logging solution in the future.)
+</p></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">south</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<ol class="org-ol">
+<li>use south to migrate data after adding a field to a model:
+<ul class="org-ul">
+<li><p>
+before changing the model,
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">./manage.py schemamigration &lt;appname&gt;
+</pre>
+</div></li>
+<li><p>
+after changing the model,
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">./manage.py schemamigration &lt;appname&gt;;
+./manage.py migrate &lt;appname&gt;
+</pre>
+</div></li>
+</ul></li>
+<li><p>
+for a legacy app, run
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">./manage.py convert_to_south &lt;appname&gt;
+</pre>
+</div></li>
+</ol>
+</div>
+</div>
+
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">tastypie</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<ol class="org-ol">
+<li>See this <a href="http://stackoverflow.com/questions/9468902/toggle-fields-to-be-full-in-the-url-for-tastypie">SO thread</a> for methods to toggle 'full' through url</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9">deployment</h2>
+<div class="outline-text-2" id="text-orgheadline9">
+<ol class="org-ol">
+<li><p>
+uwsgi+nginx: 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">sudo apt-get install nginx
+apt-get install build-essential python-dev libxml2-dev <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">uwsgi dependency</span>
+pip install uwsgi
+bin/uwsgi --socket /tmp/uwsgi.sock --wsgi-file /mnt/scratch/test.py --chmod-socket=666
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">serve django</span>
+bin/uwsgi --socket /tmp/uwsgi.sock --chdir /mnt/scratch/testapp/testdeploy/ --wsgi-file /mnt/scratch/testapp/testdeploy/testdeploy/wsgi.py  --virtualenv /usr/virtualenv --chmod-socket=666
+</pre>
+</div></li>
+
+<li>verify nginx conf file:</li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-sh">/usr/sbin/nginx -t -c conf_name.conf
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>uwsgi configurations
+<ul class="org-ul">
+<li><p>
+use <code>master=true</code> and <code>pidfile</code> for easier management, e.g.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">uwsgi --reload pid_file
+</pre>
+</div></li>
+<li><p>
+use <code>stat\_server</code> for worker monitoring
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">in uwsgi.ini</span>
+stats = /tmp/uwsgi_stat.sock
+<span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">in shell</span>
+$ uwsgitop /tmp/uwsgi_stat.sock
+</pre>
+</div></li>
+<li><p>
+read uwsgitop output
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">WID</td>
+<td class="org-left">worker id</td>
+</tr>
+
+<tr>
+<td class="org-left">%</td>
+<td class="org-left">percentage of served requests by the worker</td>
+</tr>
+
+<tr>
+<td class="org-left">PID</td>
+<td class="org-left">process id of the worker</td>
+</tr>
+
+<tr>
+<td class="org-left">REQ</td>
+<td class="org-left">number of managed requests</td>
+</tr>
+
+<tr>
+<td class="org-left">EXC</td>
+<td class="org-left">number of raised exceptions</td>
+</tr>
+
+<tr>
+<td class="org-left">SIG</td>
+<td class="org-left">number of managed uwsgi signals (NOT unix signals !!!)</td>
+</tr>
+
+<tr>
+<td class="org-left">STATUS</td>
+<td class="org-left">can be idle, busy, pause, cheaped or sig</td>
+</tr>
+
+<tr>
+<td class="org-left">AVG</td>
+<td class="org-left">average response time for the worker</td>
+</tr>
+
+<tr>
+<td class="org-left">RSS</td>
+<td class="org-left">RSS memory (need &#x2013;memory-report)</td>
+</tr>
+
+<tr>
+<td class="org-left">VSZ</td>
+<td class="org-left">address space (need &#x2013;memory-report)</td>
+</tr>
+
+<tr>
+<td class="org-left">TX</td>
+<td class="org-left">transmitted data</td>
+</tr>
+
+<tr>
+<td class="org-left">RunT</td>
+<td class="org-left">running time</td>
+</tr>
+</tbody>
+</table></li>
+</ul></li>
+</ol>
+</div>
+</div>

@@ -1,0 +1,99 @@
+---
+layout: post
+title: 一些值得记录的Python笔记
+categories: computers
+tags: Python
+---
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">Python Note</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline1" class="outline-4">
+<h4 id="orgheadline1">operator.itemgetter/attrgetter</h4>
+<div class="outline-text-4" id="text-orgheadline1">
+<p>
+simple usage is like:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #e74c3c;">f</span>=itemgetter(2)
+&gt;&gt;&gt; <span style="color: #e74c3c;">l</span>=(1,2,3)
+&gt;&gt;&gt; f(l)
+3
+</pre>
+</div>
+
+<p>
+It's very useful when applied to sorting, e.g., 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #7f8c8d;">## </span><span style="color: #95a5a6;">sorting students by weight (suppose student has attr. student.weight)</span>
+ <span style="color: #1abc9c;">sorted</span>(students, key=attrgetter(<span style="color: #2ecc71;">'weight'</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2">get class name of an instance</h4>
+<div class="outline-text-4" id="text-orgheadline2">
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #9b59b6;">if</span> (module.__class__.<span style="color: #1abc9c;">__name__</span>==<span style="color: #1abc9c;">unicode</span>)
+</pre>
+</div>
+<p>
+<b>Update</b>: it's better to use a <i>classmethod</i>. See the next note.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-4">
+<h4 id="orgheadline3">classmethod/staticmethod</h4>
+<div class="outline-text-4" id="text-orgheadline3">
+<p>
+classmethod receives the <b>class</b> it's called on as the first argument (as <i>cls</i>); 
+regular instance method gets the <b>instance</b> it's called on as the first argument (as <i>self</i>);
+staticmethod gets either of them.
+</p>
+
+<p>
+classmethos is useful for alternative constructors.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4">difference betweent <i>==</i> and <i>is</i></h4>
+<div class="outline-text-4" id="text-orgheadline4">
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #e74c3c;">a</span> = [1,2]
+<span style="color: #e74c3c;">b</span> = [1,2]
+a == b <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">returns True</span>
+a <span style="color: #9b59b6;">is</span> b <span style="color: #7f8c8d;"># </span><span style="color: #95a5a6;">returns False</span>
+</pre>
+</div>
+<p>
+<code>==</code> checks the value, while <code>is</code> checks the object itself. See this SO thread
+<a href="http://stackoverflow.com/questions/132988/is-there-a-difference-between-and-is-in-python">http://stackoverflow.com/questions/132988/is-there-a-difference-between-and-is-in-python</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-4">
+<h4 id="orgheadline5">Misc</h4>
+<div class="outline-text-4" id="text-orgheadline5">
+<ol class="org-ol">
+<li>By default, <code>.</code> in regex doesn't match newline (<code>\s</code> matches newline)</li>
+
+<li>use douban pypi</li>
+</ol>
+<div class="org-src-container">
+
+<pre class="src src-sh">pip install -i http://pypi.douban.com/simple/ gevent
+</pre>
+</div>
+</div>
+</div>
+</div>
