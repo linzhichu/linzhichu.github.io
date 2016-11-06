@@ -1,0 +1,106 @@
+---
+layout: post
+title: 一些值得记录的Git技巧/命令
+categories: computers
+tags: git
+---
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">Tips</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">check if branchA has been merged into branch master:</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<div class="org-src-container">
+
+<pre class="src src-sh">git log master branchA
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">Suggested format of commit message:</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+It's suggested by GIT manual to have a one-line summary followed by a blank line, then followed by multiple lines of details
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">revert a commit/merge</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+To revert a particular commit, i.e. applying a reverse-patch
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git revert &lt;commit&gt;
+</pre>
+</div>
+<p>
+But to revert a merge, we need to specify which parent of the commit we want to keep
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git revert &lt;commit&gt; -m 1
+</pre>
+</div>
+<p>
+this will keep parent 1 as the mainline.
+</p>
+
+<p>
+To find out which parent is 1 or 2, we can use
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git log --merges
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">make a new local branch to track a remote branch</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+#+begin<sub>src</sub> sh
+git fetch &lt;remote&gt; &lt;rbranch&gt;:&lt;lbranch&gt; 
+git checkout &lt;lbranch&gt;
+#+end<sub>src</sub> sh
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5">make a new branch for merging with two diverged branches</h3>
+<div class="outline-text-3" id="text-orgheadline5">
+<p>
+find the most recent common ancestor of two brances
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git merge-base branchA branchB
+</pre>
+</div>
+<p>
+or for the full commit info 
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git log -1 $(<span style="color: #3498db;">git</span> merge-base branchA branchB)
+</pre>
+</div>
+<p>
+then make a feature branch from the common ancestor commit
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git branch branchname &lt;sha1-of-commit&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>

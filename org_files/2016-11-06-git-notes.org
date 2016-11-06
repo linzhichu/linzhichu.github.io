@@ -1,0 +1,55 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 一些值得记录的Git技巧/命令
+categories: computers
+tags: git
+---
+#+END_HTML
+
+* Tips
+** check if branchA has been merged into branch master:
+#+BEGIN_SRC sh
+  git log master branchA
+#+END_SRC
+
+** Suggested format of commit message:
+It's suggested by GIT manual to have a one-line summary followed by a blank line, then followed by multiple lines of details
+
+** revert a commit/merge
+To revert a particular commit, i.e. applying a reverse-patch
+#+begin_src sh
+   git revert <commit>
+#+end_src
+But to revert a merge, we need to specify which parent of the commit we want to keep
+#+begin_src sh
+   git revert <commit> -m 1
+#+end_src
+this will keep parent 1 as the mainline.
+
+To find out which parent is 1 or 2, we can use
+#+begin_src sh
+   git log --merges
+#+end_src
+
+** make a new local branch to track a remote branch
+#+begin_src sh
+git fetch <remote> <rbranch>:<lbranch> 
+git checkout <lbranch>
+#+end_src sh
+
+** make a new branch for merging with two diverged branches
+find the most recent common ancestor of two brances
+#+BEGIN_SRC sh
+git merge-base branchA branchB
+#+END_SRC
+or for the full commit info 
+#+BEGIN_SRC sh
+git log -1 $(git merge-base branchA branchB)
+#+END_SRC
+then make a feature branch from the common ancestor commit
+#+BEGIN_SRC sh
+git branch branchname <sha1-of-commit>
+#+END_SRC
