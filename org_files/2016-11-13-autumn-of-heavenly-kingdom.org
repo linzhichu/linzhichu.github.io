@@ -9,14 +9,14 @@ tags: History
 ---
 #+END_HTML
 
-#+BEGIN_VERSE
-天国之秋
-作者: 裴士锋 (Stephen R.Platt)
-出版社: 社会科学文献出版社
-原作名: Autumn in the Heavenly Kingdom: China, the West, and the Epic Story of the Taiping Civil War
-译者: 黄中宪 / 谭伯牛（校）
-丛书: 甲骨文丛书
-#+END_VERSE
+#+BEGIN_QUOTE
+天国之秋 \\
+作者: 裴士锋 (Stephen R.Platt)\\
+出版社: 社会科学文献出版社\\
+原作名: Autumn in the Heavenly Kingdom: China, the West, and the Epic Story of the Taiping Civil War\\
+译者: 黄中宪 / 谭伯牛（校）\\
+丛书: 甲骨文丛书\\
+#+END_QUOTE
 
 这本书是我看得第一本西方人写的太平天国专著，提供了不同与社会主义史学家对太平天国的崇高赞扬和太平天国贬低者的第三种视角。作者引用了大量西方人的记录和原始资料，和同时期的中文资料一起给我们勾勒了一个角度不同的太平天国。当然，这本书极力想说明英美两国从外交家到雇佣兵对太平天国战争最后结局的影响，这点在我看来夸大了，也缺乏更有力的论证。
 
