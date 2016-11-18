@@ -4,7 +4,7 @@
 ---
 layout: post
 title: 《天国之秋》-在悲惨的年代，没有人可以成为赢家
-categories: book review
+categories: book-review
 tags: History
 ---
 #+END_HTML
