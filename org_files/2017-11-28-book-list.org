@@ -5,7 +5,7 @@
 layout: post
 title: 读书记录
 categories: book-review
-tags: 
+excerpt: Here is a list of book reviews 
 ---
 #+END_HTML
 
