@@ -6,6 +6,7 @@ layout: post
 title: GPG加密简介
 categories: computers
 tags: encryption
+excerpt: GPG加密的基本原理和使用
 ---
 #+END_HTML
 [[https://en.wikipedia.org/wiki/GNU_Privacy_Guard][GPG]] (GNU Privacy Guard)是基于OpenPGP协议的一个加密程序，而OpenPGP本身是基于[[https://en.wikipedia.org/wiki/Pretty_Good_Privacy][Pretty Good Privacy]] （简称PGP）的一个开源协议。

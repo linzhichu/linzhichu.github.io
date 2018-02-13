@@ -3,6 +3,7 @@ layout: post
 title: 通过mu4e用Emacs作为邮件客户端
 categories: computers
 tags: emacs
+excerpt: Emacs中使用mu4e收发邮件碰到的一些问题
 ---
 
 <p>
@@ -127,7 +128,7 @@ Tue 04 Oct 2016 11:05:10 PM CST Michael from Nylas <a href="mailto:michael%40nyl
 </p>
 <div class="org-src-container">
 
-<pre class="src src-lisp">(<span style="color: #E1BEE7; font-weight: bold;">require</span> '<span style="color: #C5CAE9;">mu4e</span>)
+<pre class="src src-lisp">(<span style="color: #E1BEE7;">require</span> '<span style="color: #C5CAE9;">mu4e</span>)
 (setq
   mu4e-get-mail-command <span style="color: #C5E1A5;">"offlineimap"</span>   <span style="color: #757575;">;; </span><span style="color: #757575;">or fetchmail, or ...</span>
   mu4e-update-interval 60
@@ -173,17 +174,17 @@ mu4e默认使用emacs的 <code>mail-send</code> 函数发送邮件，使用时�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-lisp">(<span style="color: #E1BEE7; font-weight: bold;">defun</span> <span style="color: #64B5F6; font-weight: bold;">mu4e~headers-more-human-date</span> (msg)
+<pre class="src src-lisp">(<span style="color: #E1BEE7;">defun</span> <span style="color: #64B5F6;">mu4e~headers-more-human-date</span> (msg)
   <span style="color: #9E9E9E;">"Show a 'more human' date.  If the date is today or yesterday,</span>
 <span style="color: #9E9E9E;">show the time, otherwise, show the date. The formats used for</span>
 <span style="color: #9E9E9E;">date and time are `</span><span style="color: #C5CAE9;">mu4e-headers-date-format</span><span style="color: #9E9E9E;">' and</span>
 <span style="color: #9E9E9E;">`</span><span style="color: #C5CAE9;">mu4e-headers-time-format</span><span style="color: #9E9E9E;">'."</span>
-  (<span style="color: #E1BEE7; font-weight: bold;">let</span> ((date (mu4e-msg-field msg <span style="color: #80DEEA;">:date</span>)))
-    (<span style="color: #E1BEE7; font-weight: bold;">if</span> (equal date '(0 0 0))
+  (<span style="color: #E1BEE7;">let</span> ((date (mu4e-msg-field msg <span style="color: #80DEEA;">:date</span>)))
+    (<span style="color: #E1BEE7;">if</span> (equal date '(0 0 0))
       <span style="color: #C5E1A5;">"None"</span>
-      (<span style="color: #E1BEE7; font-weight: bold;">let</span> ((day1 (decode-time date))
+      (<span style="color: #E1BEE7;">let</span> ((day1 (decode-time date))
              (day2 (decode-time (current-time))))
-        (<span style="color: #E1BEE7; font-weight: bold;">cond</span> ((and
+        (<span style="color: #E1BEE7;">cond</span> ((and
                 (eq (nth 3 day1) (nth 3 day2))  <span style="color: #757575;">;; </span><span style="color: #757575;">day</span>
                 (eq (nth 4 day1) (nth 4 day2))  <span style="color: #757575;">;; </span><span style="color: #757575;">month</span>
                 (eq (nth 5 day1) (nth 5 day2))) <span style="color: #757575;">;; </span><span style="color: #757575;">year</span>
@@ -241,7 +242,7 @@ mu4e默认支持在header-view或者message-view中快速进行某些操作，�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-lisp">(<span style="color: #E1BEE7; font-weight: bold;">defun</span> <span style="color: #64B5F6; font-weight: bold;">search-for-sender</span> (msg)
+<pre class="src src-lisp">(<span style="color: #E1BEE7;">defun</span> <span style="color: #64B5F6;">search-for-sender</span> (msg)
   <span style="color: #9E9E9E;">"Search for messages sent by the sender of the message at point."</span>
   (mu4e-headers-search
     (concat <span style="color: #C5E1A5;">"from:"</span> (cdar (mu4e-message-field msg <span style="color: #80DEEA;">:from</span>)))))
@@ -266,12 +267,12 @@ mu4e默认支持在header-view或者message-view中快速进行某些操作，�
 </p>
 <div class="org-src-container">
 
-<pre class="src src-lisp">(<span style="color: #E1BEE7; font-weight: bold;">require</span> '<span style="color: #C5CAE9;">alert</span>)
+<pre class="src src-lisp">(<span style="color: #E1BEE7;">require</span> '<span style="color: #C5CAE9;">alert</span>)
 (setq alert-fade-time 90)
 (setq alert-default-style 'libnotify)
 (add-hook 'mu4e-index-updated-hook 'mu4e~headers-do-auto-update)
 (add-hook 'mu4e-index-updated-hook
-  (<span style="color: #E1BEE7; font-weight: bold;">defun</span> <span style="color: #64B5F6; font-weight: bold;">new-mail-notify</span> ()
+  (<span style="color: #E1BEE7;">defun</span> <span style="color: #64B5F6;">new-mail-notify</span> ()
     (alert <span style="color: #C5E1A5;">"New mail coming"</span> <span style="color: #80DEEA;">:title</span> <span style="color: #C5E1A5;">"mu4e"</span>)))
 </pre>
 </div>

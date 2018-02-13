@@ -6,6 +6,7 @@ layout: post
 title: 通过mu4e用Emacs作为邮件客户端
 categories: computers
 tags: emacs
+excerpt: Emacs中使用mu4e收发邮件碰到的一些问题
 ---
 #+END_HTML
 

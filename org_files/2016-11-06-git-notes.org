@@ -6,6 +6,7 @@ layout: post
 title: 一些值得记录的Git技巧/命令
 categories: computers
 tags: git
+excerpt: A compilation of notes for using Git
 ---
 #+END_HTML
 

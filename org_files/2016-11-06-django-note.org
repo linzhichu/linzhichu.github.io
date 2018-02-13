@@ -6,6 +6,7 @@ layout: post
 title: Django小笔记
 categories: computers
 tags: Python, Django
+excerpt: A compilation of notes related to Django framework
 ---
 #+END_HTML
 

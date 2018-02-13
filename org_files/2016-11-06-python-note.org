@@ -6,6 +6,7 @@ layout: post
 title: 一些值得记录的Python笔记
 categories: computers
 tags: Python
+excerpt: A compilation of notes related to Python
 ---
 #+END_HTML
 
