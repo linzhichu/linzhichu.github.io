@@ -10,7 +10,7 @@ tagline:
 <ul class="posts">
   {% for post in site.posts %}
     <li><h4><span><a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></span></h4>
-    <h4><small class="text-muted">{{post.date}}
+    <h4><small class="text-muted">{{post.date|date_to_string}}
     {% for category in post.categories%}
     <span class="badge badge-light">{{category}}</span>
     {% endfor %}
