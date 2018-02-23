@@ -1,0 +1,44 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: Python threading 模块
+categories: computers
+tags: Python
+---
+#+END_HTML
+
+* 最简单的多线程实现
+通过为 =Thread= 传入 =target= 参数可以启动一个最简单的线程
+#+BEGIN_SRC python
+import time
+from threading import Thread
+
+def thread_worker():
+    for i in xrange(3):
+        time.sleep(2)
+        print 'threaded worker at %d' % i
+
+
+if __name__ == '__main__':
+    t = Thread(target=thread_worker)
+    t.start()
+    time.sleep(0.5)
+    for i in xrange(3):
+        time.sleep(1)
+        print 'main thread at %d' % i
+#+END_SRC 
+从输出结果可以看到，两个线程互不干扰地各自执行
+#+BEGIN_SRC sh
+$ python test_thread.py 
+main thread at 0
+threaded worker at 0
+main thread at 1
+main thread at 2
+threaded worker at 1
+threaded worker at 2
+#+END_SRC
+* Thread对象
+* daemon vs non-daemon
+* 
