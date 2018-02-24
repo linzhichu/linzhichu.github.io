@@ -8,6 +8,16 @@ categories: computers
 tags: Python
 ---
 #+END_HTML
+#+BEGIN_SRC python -i
+def func():
+  for i in range(3):
+    print
+
+ss
+def ff():
+  print xx
+  print yy
+#+END_SRC
 
 * 最简单的多线程实现
 通过为 =Thread= 传入 =target= 参数可以启动一个最简单的线程
