@@ -6,6 +6,7 @@ layout: post
 title: Python threading 模块
 categories: computers
 tags: Python
+excerpt: Python的threading模块提供了多线程编程的框架，简单记录的该模块最基本的用法，并未涉及到复杂的状态或资源锁的话题
 ---
 #+END_HTML
 * 最简单的多线程实现
