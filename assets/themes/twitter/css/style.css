@@ -65,7 +65,7 @@
   color: #FFF; }
 
 /* code block */
-pre                                      {background-color:#FFFFFF;}
+pre                                      {background-color: #F0f0f0; color: #444}
 pre span.org-builtin                     {color:#006FE0;font-weight:bold;}
 pre span.org-string                      {color:#008000;}
 pre span.org-doc                         {color:#008000;}

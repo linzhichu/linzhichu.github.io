@@ -4,19 +4,6 @@ title: Python threading 模块
 categories: computers
 tags: Python
 ---
-<div class="org-src-container">
-
-<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">func</span>():
-<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span> <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">range</span>(3):
-<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">print</span>
-
-ss
-<span class="org-keyword">def</span> <span class="org-function-name">ff</span>():
-<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span> <span class="org-keyword">print</span> xx
-<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span> <span class="org-keyword">print</span> yy
-</pre>
-</div>
-
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1">最简单的多线程实现</h2>
 <div class="outline-text-2" id="text-1">
@@ -57,14 +44,166 @@ threaded worker at 1
 threaded worker at 2
 </pre>
 </div>
+<p>
+如果有多个线程，可以对线程进行命名。 <code>target</code> 函数也可以传入相应参数
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span class="org-keyword">import</span> time
+<span class="org-keyword">import</span> threading
+<span class="org-keyword">from</span> threading <span class="org-keyword">import</span> Thread
+
+<span class="org-keyword">def</span> <span class="org-function-name">thread_worker</span>(arg):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+        time.sleep(2)
+        <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s at %d'</span> % (threading.currentThread().getName(), arg, i)
+
+<span class="org-keyword">def</span> <span class="org-function-name">thread_worker_2</span>(arg):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s'</span> % (threading.currentThread().getName(), arg)
+
+<span class="org-keyword">if</span> <span class="org-builtin">__name__</span> == <span class="org-string">'__main__'</span>:
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t</span> = Thread(name=<span class="org-string">'Thread1'</span>, target=thread_worker, args=(<span class="org-string">'arg1'</span>,))
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t2</span> = Thread(name=<span class="org-string">'Thread2'</span>, target=thread_worker_2, args=(<span class="org-string">'arg2'</span>,))
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t2.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   time.sleep(0.5)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+        time.sleep(1)
+        <span class="org-keyword">print</span> <span class="org-string">'main thread %s at %d'</span> % (threading.currentThread().getName(), i)
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ python test_thread.py 
+threaded worker Thread2 with arg arg2
+main thread MainThread at 0
+threaded worker Thread1 with arg arg1 at 0
+main thread MainThread at 1
+main thread MainThread at 2
+threaded worker Thread1 with arg arg1 at 1
+threaded worker Thread1 with arg arg1 at 2
+</pre>
 </div>
 </div>
+</div>
+
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2">Thread对象</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+对于更复杂的应用场景，通常通过构造 <code>Thread</code> 对象的方法来实现。例如以下代码可以实现和上一个例子完全等价的效果
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span class="org-keyword">import</span> time
+<span class="org-keyword">import</span> threading
+<span class="org-keyword">from</span> threading <span class="org-keyword">import</span> Thread
+
+
+<span class="org-keyword">class</span> <span class="org-type">worker1</span>(Thread):
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, name, arg):
+        <span class="org-keyword">self</span>.arg = arg
+        threading.Thread.__init__(<span class="org-keyword">self</span>, name=name)
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">run</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+            time.sleep(2)
+            <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s at %d'</span> % (threading.currentThread().getName(), <span class="org-keyword">self</span>.arg, i)
+
+
+<span class="org-keyword">class</span> <span class="org-type">worker2</span>(Thread):
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, name, arg):
+        <span class="org-keyword">self</span>.arg = arg
+        threading.Thread.__init__(<span class="org-keyword">self</span>, name=name)
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">run</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s'</span> % (threading.currentThread().getName(), <span class="org-keyword">self</span>.arg)
+
+
+<span class="org-keyword">if</span> <span class="org-builtin">__name__</span> == <span class="org-string">'__main__'</span>:
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t</span> = worker1(name=<span class="org-string">'Thread1'</span>, arg=<span class="org-string">'arg1'</span>)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t2</span> = worker2(name=<span class="org-string">'Thread2'</span>, arg=<span class="org-string">'arg2'</span>)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t2.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   time.sleep(0.5)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+        time.sleep(1)
+        <span class="org-keyword">print</span> <span class="org-string">'main thread %s at %d'</span> % (threading.currentThread().getName(), i)
+</pre>
+</div>
+<p>
+输出将和之前的例子完全一致。
+</p>
+
+<p>
+显然通过构造 <code>Thread</code> 实例并定义 <code>run()</code> 函数，可以实现更复杂的功能。例如一个GUI程序在主程序显示用户界面，同时通过另外的线程周期性的刷新数据并据此更新用户界面状态
+</p>
+</div>
 </div>
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3">daemon vs non-daemon</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+上面的例子中，可以看到主线程结束后， <code>Thread1</code> 这个线程仍在运行。大部分情况下，这都不是我们希望有的情况，因为极有可能这个非主线程会“跑飞”了。如果需要在主线程结束后自动结束所有其他线程，只要给新开的线程设置 <code>daemon</code> 属性即可。
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span class="org-keyword">import</span> time
+<span class="org-keyword">import</span> threading
+<span class="org-keyword">from</span> threading <span class="org-keyword">import</span> Thread
+
+
+<span class="org-keyword">class</span> <span class="org-type">worker1</span>(Thread):
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, name, arg):
+        <span class="org-keyword">self</span>.arg = arg
+        threading.Thread.__init__(<span class="org-keyword">self</span>, name=name)
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">run</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+            time.sleep(2)
+            <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s at %d'</span> % (threading.currentThread().getName(), <span class="org-keyword">self</span>.arg, i)
+
+
+<span class="org-keyword">class</span> <span class="org-type">worker2</span>(Thread):
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, name, arg):
+        <span class="org-keyword">self</span>.arg = arg
+        threading.Thread.__init__(<span class="org-keyword">self</span>, name=name)
+
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">run</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">print</span> <span class="org-string">'threaded worker %s with arg %s'</span> % (threading.currentThread().getName(), <span class="org-keyword">self</span>.arg)
+
+
+<span class="org-keyword">if</span> <span class="org-builtin">__name__</span> == <span class="org-string">'__main__'</span>:
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-comment-delimiter"># </span><span class="org-comment">t = Thread(name='Thread1', target=thread_worker, args=('arg1',))</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-comment-delimiter"># </span><span class="org-comment">t2 = Thread(name='Thread2', target=thread_worker_2, args=('arg2',))</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t</span> = worker1(name=<span class="org-string">'Thrad1'</span>, arg=<span class="org-string">'arg1'</span>)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t.daemon</span> = <span class="org-constant">True</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">t2</span> = worker2(name=<span class="org-string">'Thread2'</span>, arg=<span class="org-string">'arg2'</span>)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   t2.start()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   time.sleep(0.5)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">for</span> i <span class="org-keyword">in</span> <span class="org-builtin">xrange</span>(3):
+        time.sleep(1)
+        <span class="org-keyword">print</span> <span class="org-string">'main thread %s at %d'</span> % (threading.currentThread().getName(), i)
+</pre>
 </div>
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4"></h2>
+<p>
+可以看到主线程结束后 <code>daemon</code> 线程也结束了
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">$ python test_thread.py 
+threaded worker Thread2 with arg arg2
+main thread MainThread at 0
+threaded worker Thread1 with arg arg1 at 0
+main thread MainThread at 1
+main thread MainThread at 2
+</pre>
+</div>
+</div>
 </div>

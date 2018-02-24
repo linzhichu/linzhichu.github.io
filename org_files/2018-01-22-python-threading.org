@@ -8,17 +8,6 @@ categories: computers
 tags: Python
 ---
 #+END_HTML
-#+BEGIN_SRC python -i
-def func():
-  for i in range(3):
-    print
-
-ss
-def ff():
-  print xx
-  print yy
-#+END_SRC
-
 * 最简单的多线程实现
 通过为 =Thread= 传入 =target= 参数可以启动一个最简单的线程
 #+BEGIN_SRC python
@@ -49,6 +38,136 @@ main thread at 2
 threaded worker at 1
 threaded worker at 2
 #+END_SRC
+如果有多个线程，可以对线程进行命名。 =target= 函数也可以传入相应参数
+#+BEGIN_SRC python
+import time
+import threading
+from threading import Thread
+
+def thread_worker(arg):
+    for i in xrange(3):
+        time.sleep(2)
+        print 'threaded worker %s with arg %s at %d' % (threading.currentThread().getName(), arg, i)
+
+def thread_worker_2(arg):
+    print 'threaded worker %s with arg %s' % (threading.currentThread().getName(), arg)
+
+if __name__ == '__main__':
+    t = Thread(name='Thread1', target=thread_worker, args=('arg1',))
+    t2 = Thread(name='Thread2', target=thread_worker_2, args=('arg2',))
+    t.start()
+    t2.start()
+    time.sleep(0.5)
+    for i in xrange(3):
+        time.sleep(1)
+        print 'main thread %s at %d' % (threading.currentThread().getName(), i)
+#+END_SRC
+#+BEGIN_SRC sh
+$ python test_thread.py 
+threaded worker Thread2 with arg arg2
+main thread MainThread at 0
+threaded worker Thread1 with arg arg1 at 0
+main thread MainThread at 1
+main thread MainThread at 2
+threaded worker Thread1 with arg arg1 at 1
+threaded worker Thread1 with arg arg1 at 2
+#+END_SRC
+
 * Thread对象
+对于更复杂的应用场景，通常通过构造 =Thread= 对象的方法来实现。例如以下代码可以实现和上一个例子完全等价的效果
+#+BEGIN_SRC python
+import time
+import threading
+from threading import Thread
+
+
+class worker1(Thread):
+
+    def __init__(self, name, arg):
+        self.arg = arg
+        threading.Thread.__init__(self, name=name)
+
+    def run(self):
+        for i in xrange(3):
+            time.sleep(2)
+            print 'threaded worker %s with arg %s at %d' % (threading.currentThread().getName(), self.arg, i)
+
+
+class worker2(Thread):
+
+    def __init__(self, name, arg):
+        self.arg = arg
+        threading.Thread.__init__(self, name=name)
+
+    def run(self):
+        print 'threaded worker %s with arg %s' % (threading.currentThread().getName(), self.arg)
+
+
+if __name__ == '__main__':
+    t = worker1(name='Thread1', arg='arg1')
+    t2 = worker2(name='Thread2', arg='arg2')
+    t.start()
+    t2.start()
+    time.sleep(0.5)
+    for i in xrange(3):
+        time.sleep(1)
+        print 'main thread %s at %d' % (threading.currentThread().getName(), i)
+
+#+END_SRC
+输出将和之前的例子完全一致。
+
+显然通过构造 =Thread= 实例并定义 =run()= 函数，可以实现更复杂的功能。例如一个GUI程序在主程序显示用户界面，同时通过另外的线程周期性的刷新数据并据此更新用户界面状态
 * daemon vs non-daemon
-* 
+上面的例子中，可以看到主线程结束后， =Thread1= 这个线程仍在运行。大部分情况下，这都不是我们希望有的情况，因为极有可能这个非主线程会“跑飞”了。如果需要在主线程结束后自动结束所有其他线程，只要给新开的线程设置 ~daemon~ 属性即可。
+
+#+BEGIN_SRC python
+  import time
+  import threading
+  from threading import Thread
+
+
+  class worker1(Thread):
+
+      def __init__(self, name, arg):
+          self.arg = arg
+          threading.Thread.__init__(self, name=name)
+
+      def run(self):
+          for i in xrange(3):
+              time.sleep(2)
+              print 'threaded worker %s with arg %s at %d' % (threading.currentThread().getName(), self.arg, i)
+
+
+  class worker2(Thread):
+
+      def __init__(self, name, arg):
+          self.arg = arg
+          threading.Thread.__init__(self, name=name)
+
+      def run(self):
+          print 'threaded worker %s with arg %s' % (threading.currentThread().getName(), self.arg)
+
+
+  if __name__ == '__main__':
+      # t = Thread(name='Thread1', target=thread_worker, args=('arg1',))
+      # t2 = Thread(name='Thread2', target=thread_worker_2, args=('arg2',))
+      t = worker1(name='Thrad1', arg='arg1')
+      t.daemon = True
+      t2 = worker2(name='Thread2', arg='arg2')
+      t.start()
+      t2.start()
+      time.sleep(0.5)
+      for i in xrange(3):
+          time.sleep(1)
+          print 'main thread %s at %d' % (threading.currentThread().getName(), i)
+#+END_SRC
+可以看到主线程结束后 ~daemon~ 线程也结束了
+#+BEGIN_SRC sh
+$ python test_thread.py 
+threaded worker Thread2 with arg arg2
+main thread MainThread at 0
+threaded worker Thread1 with arg arg1 at 0
+main thread MainThread at 1
+main thread MainThread at 2
+#+END_SRC
+
