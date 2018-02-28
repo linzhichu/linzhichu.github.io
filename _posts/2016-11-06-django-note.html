@@ -2,7 +2,7 @@
 layout: post
 title: Django小笔记
 categories: computers
-tags: Python, Django
+tags: Python Django
 excerpt: A compilation of notes related to Django framework
 ---
 
@@ -27,20 +27,20 @@ excerpt: A compilation of notes related to Django framework
 <li>use django models in scrapy projects:
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #9E9E9E; background-color: #474747;"> </span>  <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">setup_django_env</span>(path):
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">import</span> imp, os
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">from</span> django.core.management <span style="color: #E1BEE7;">import</span> setup_environ
+<pre class="src src-python"><span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>  <span class="org-keyword">def</span> <span class="org-function-name">setup_django_env</span>(path):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">import</span> imp, os
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">from</span> django.core.management <span class="org-keyword">import</span> setup_environ
 
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #80CBC4;">f</span>, <span style="color: #80CBC4;">filename</span>, <span style="color: #80CBC4;">desc</span> = imp.find_module(<span style="color: #C5E1A5;">'settings'</span>, [path])
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #80CBC4;">project</span> = imp.load_module(<span style="color: #C5E1A5;">'settings'</span>, f, filename, desc)       
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">f</span>, <span class="org-variable-name">filename</span>, <span class="org-variable-name">desc</span> = imp.find_module(<span class="org-string">'settings'</span>, [path])
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-variable-name">project</span> = imp.load_module(<span class="org-string">'settings'</span>, f, filename, desc)       
 
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   setup_environ(project)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   setup_environ(project)
 
-<span style="color: #757575;"># </span><span style="color: #757575;">Add django project to sys.path</span>
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">import</span> sys
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   sys.path.append(os.path.abspath(os.path.join(path, os.path.pardir)))
+<span class="org-comment-delimiter"># </span><span class="org-comment">Add django project to sys.path</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">import</span> sys
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   sys.path.append(os.path.abspath(os.path.join(path, os.path.pardir)))
 
-setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/trip_proj/gotrip/gotrip/'</span>)
+setup_django_env(<span class="org-string">'/home/zhichu/Projects/trip_proj/trip_proj/gotrip/gotrip/'</span>)
 </pre>
 </div>
 </li>
@@ -56,11 +56,11 @@ setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/
 <li><code>verbose_name</code> will be overriden if formfield is re-defined in forms.py; use <code>label</code> for form field instead
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #E1BEE7;">class</span> <span style="color: #FFCC80;">ItineraryForm</span>(ModelForm):
-<span style="color: #9E9E9E; background-color: #474747;"> </span>  <span style="color: #80CBC4;">start_date</span> = forms.DateField((<span style="color: #C5E1A5;">'%Y/%m/%d'</span>,), label = u<span style="color: #C5E1A5;">'checkin_date'</span>, widget = forms.DateTimeInput(<span style="color: #80DEEA;">format</span>=<span style="color: #C5E1A5;">'%Y/%m/%d'</span>, attrs={
-           <span style="color: #C5E1A5;">'class'</span>:<span style="color: #C5E1A5;">'input'</span>,
-           <span style="color: #C5E1A5;">'size'</span>:<span style="color: #C5E1A5;">'10'</span>
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #9E9E9E; background-color: #474747;"> </span>  }))
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">ItineraryForm</span>(ModelForm):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>  <span class="org-variable-name">start_date</span> = forms.DateField((<span class="org-string">'%Y/%m/%d'</span>,), label = u<span class="org-string">'checkin_date'</span>, widget = forms.DateTimeInput(<span class="org-builtin">format</span>=<span class="org-string">'%Y/%m/%d'</span>, attrs={
+           <span class="org-string">'class'</span>:<span class="org-string">'input'</span>,
+           <span class="org-string">'size'</span>:<span class="org-string">'10'</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>  }))
 </pre>
 </div>
 </li>
@@ -69,44 +69,44 @@ setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/
 <li>for using <code>contenttype</code>, see my SO question <a href="http://stackoverflow.com/questions/12782847/django-using-contenttype-vs-multi-table-inheritance">  Django: using ContentType vs multi table inheritance</a> and <code>trip/models.py</code> and <code>trip/views.py</code>
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #80CBC4;">hotelstay_ctype</span> = ContentType.objects.get_for_model(HotelStay)
-<span style="color: #80CBC4;">trip_event_list</span> = TripEvent.objects.<span style="color: #80DEEA;">filter</span>(content_type=hotelstay_ctype)
-<span style="color: #E1BEE7;">for</span> trip_event <span style="color: #E1BEE7;">in</span> trip_event_list:
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">print</span> trip_event.content_object.checkin_date
+<pre class="src src-python"><span class="org-variable-name">hotelstay_ctype</span> = ContentType.objects.get_for_model(HotelStay)
+<span class="org-variable-name">trip_event_list</span> = TripEvent.objects.<span class="org-builtin">filter</span>(content_type=hotelstay_ctype)
+<span class="org-keyword">for</span> trip_event <span class="org-keyword">in</span> trip_event_list:
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">print</span> trip_event.content_object.checkin_date
 </pre>
 </div>
 </li>
 <li>filter objects by date:
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #80CBC4;">queryset</span>=Itinerary.objects.<span style="color: #80DEEA;">filter</span>(end_date__lt=date.today())
+<pre class="src src-python"><span class="org-variable-name">queryset</span>=Itinerary.objects.<span class="org-builtin">filter</span>(end_date__lt=date.today())
 </pre>
 </div>
 </li>
 <li>filter ModelForm's ForeignKey field during initialization, by passing <code>user=request.user</code> through <code>*kwargs</code> to form's <code>__init__()</code> method:
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #9E9E9E; background-color: #474747;"> </span>  <span style="color: #757575;"># </span><span style="color: #757575;">in forms.py</span>
-<span style="color: #E1BEE7;">class</span> <span style="color: #FFCC80;">HotelStayForm</span>(ModelForm):
+<pre class="src src-python"><span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>  <span class="org-comment-delimiter"># </span><span class="org-comment">in forms.py</span>
+<span class="org-keyword">class</span> <span class="org-type">HotelStayForm</span>(ModelForm):
 ...
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">__init__</span>(<span style="color: #E1BEE7;">self</span>, *args, **kwargs): <span style="color: #757575;">#</span><span style="color: #757575;">set initial value for field itinerary</span>
-        <span style="color: #80CBC4;">user</span> = kwargs.pop(<span style="color: #C5E1A5;">'user'</span>, <span style="color: #C5E1A5;">''</span>)
-        <span style="color: #80DEEA;">super</span>(HotelStayForm, <span style="color: #E1BEE7;">self</span>).__init__(*args, **kwargs)
-        <span style="color: #757575;"># </span><span style="color: #757575;">only show itineraries belonging to request.user</span>
-        <span style="color: #E1BEE7;">self</span>.fields[<span style="color: #C5E1A5;">'itinerary'</span>]<span style="color: #80CBC4;">.queryset</span> = Itinerary.objects.<span style="color: #80DEEA;">filter</span>(user=user)
-<span style="color: #757575;"># </span><span style="color: #757575;">in views.py</span>
-<span style="color: #FFCC80;">@login_required</span>()
-<span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">add_hotelstay</span>(request):
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">if</span> request.method == <span style="color: #C5E1A5;">'POST'</span>: <span style="color: #757575;"># </span><span style="color: #757575;">If the form has been submitted...</span>
-        <span style="color: #80CBC4;">form</span> = HotelStayForm(request.POST, user=request.user) <span style="color: #757575;"># </span><span style="color: #757575;">A form bound to the POST data</span>
-        <span style="color: #E1BEE7;">if</span> form.is_valid(): <span style="color: #757575;"># </span><span style="color: #757575;">All validation rules pass</span>
-            <span style="color: #757575;"># </span><span style="color: #757575;">Process the data in form.cleaned_data</span>
-            <span style="color: #757575;"># </span><span style="color: #757575;">...</span>
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">else</span>:
-        <span style="color: #80CBC4;">form</span> = HotelStayForm(user=request.user) <span style="color: #757575;"># </span><span style="color: #757575;">user kwargs used in form to set initial value for itinerary field</span>
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">return</span> render_to_response(<span style="color: #C5E1A5;">'trip/add_itinerary.html'</span>, {
-        <span style="color: #C5E1A5;">'form'</span>: form}, context_instance=RequestContext(request)
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   )
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, *args, **kwargs): <span class="org-comment-delimiter">#</span><span class="org-comment">set initial value for field itinerary</span>
+        <span class="org-variable-name">user</span> = kwargs.pop(<span class="org-string">'user'</span>, <span class="org-string">''</span>)
+        <span class="org-builtin">super</span>(HotelStayForm, <span class="org-keyword">self</span>).__init__(*args, **kwargs)
+        <span class="org-comment-delimiter"># </span><span class="org-comment">only show itineraries belonging to request.user</span>
+        <span class="org-keyword">self</span>.fields[<span class="org-string">'itinerary'</span>]<span class="org-variable-name">.queryset</span> = Itinerary.objects.<span class="org-builtin">filter</span>(user=user)
+<span class="org-comment-delimiter"># </span><span class="org-comment">in views.py</span>
+<span class="org-type">@login_required</span>()
+<span class="org-keyword">def</span> <span class="org-function-name">add_hotelstay</span>(request):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">if</span> request.method == <span class="org-string">'POST'</span>: <span class="org-comment-delimiter"># </span><span class="org-comment">If the form has been submitted...</span>
+        <span class="org-variable-name">form</span> = HotelStayForm(request.POST, user=request.user) <span class="org-comment-delimiter"># </span><span class="org-comment">A form bound to the POST data</span>
+        <span class="org-keyword">if</span> form.is_valid(): <span class="org-comment-delimiter"># </span><span class="org-comment">All validation rules pass</span>
+            <span class="org-comment-delimiter"># </span><span class="org-comment">Process the data in form.cleaned_data</span>
+            <span class="org-comment-delimiter"># </span><span class="org-comment">...</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">else</span>:
+        <span class="org-variable-name">form</span> = HotelStayForm(user=request.user) <span class="org-comment-delimiter"># </span><span class="org-comment">user kwargs used in form to set initial value for itinerary field</span>
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">return</span> render_to_response(<span class="org-string">'trip/add_itinerary.html'</span>, {
+        <span class="org-string">'form'</span>: form}, context_instance=RequestContext(request)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   )
 </pre>
 </div>
 </li>
@@ -117,7 +117,7 @@ setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/
 </ol>
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #80CBC4;">st_count</span>=TrainStationDetail.objects.<span style="color: #80DEEA;">all</span>().annotate(line_count=Count(<span style="color: #C5E1A5;">'trainlinedetail'</span>)).order_by(<span style="color: #C5E1A5;">'-line_count'</span>)
+<pre class="src src-python"><span class="org-variable-name">st_count</span>=TrainStationDetail.objects.<span class="org-builtin">all</span>().annotate(line_count=Count(<span class="org-string">'trainlinedetail'</span>)).order_by(<span class="org-string">'-line_count'</span>)
 </pre>
 </div>
 </div>
@@ -140,8 +140,8 @@ setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/
 <li>use multiple submit buttons:
 <div class="org-src-container">
 
-<pre class="src src-html">&lt;<span style="color: #64B5F6;">input</span> <span style="color: #80CBC4;">class</span>=<span style="color: #C5E1A5;">"button"</span> <span style="color: #80CBC4;">type</span>=<span style="color: #C5E1A5;">"submit"</span> <span style="color: #80CBC4;">name</span>=<span style="color: #C5E1A5;">"_delete"</span> <span style="color: #80CBC4;">value</span>=<span style="color: #C5E1A5;">"finish"</span>&gt;     
- &lt;<span style="color: #64B5F6;">input</span> <span style="color: #80CBC4;">class</span>=<span style="color: #C5E1A5;">"button"</span> <span style="color: #80CBC4;">type</span>=<span style="color: #C5E1A5;">"submit"</span> <span style="color: #80CBC4;">name</span>=<span style="color: #C5E1A5;">"_back"</span> <span style="color: #80CBC4;">value</span>=<span style="color: #C5E1A5;">"don't delete"</span>&gt;        
+<pre class="src src-html">&lt;<span class="org-function-name">input</span> <span class="org-variable-name">class</span>=<span class="org-string">"button"</span> <span class="org-variable-name">type</span>=<span class="org-string">"submit"</span> <span class="org-variable-name">name</span>=<span class="org-string">"_delete"</span> <span class="org-variable-name">value</span>=<span class="org-string">"finish"</span>&gt;     
+ &lt;<span class="org-function-name">input</span> <span class="org-variable-name">class</span>=<span class="org-string">"button"</span> <span class="org-variable-name">type</span>=<span class="org-string">"submit"</span> <span class="org-variable-name">name</span>=<span class="org-string">"_back"</span> <span class="org-variable-name">value</span>=<span class="org-string">"don't delete"</span>&gt;        
        if '_back' in self.request.POST:
 </pre>
 </div>
@@ -149,8 +149,8 @@ setup_django_env(<span style="color: #C5E1A5;">'/home/zhichu/Projects/trip_proj/
 <li>To update RequestContext(request) with extra context,
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #80CBC4;">context</span> = RequestContext(request)
-context.update({<span style="color: #C5E1A5;">'friend_list'</span>:friend_list})
+<pre class="src src-python"><span class="org-variable-name">context</span> = RequestContext(request)
+context.update({<span class="org-string">'friend_list'</span>:friend_list})
 </pre>
 </div>
 <p>
@@ -182,27 +182,27 @@ see this SO question <a href="http://stackoverflow.com/questions/38987/how-can-i
 <li>Simulating user login in a unittest
 <div class="org-src-container">
 
-<pre class="src src-python"><span style="color: #E1BEE7;">from</span> django.contrib.auth.models <span style="color: #E1BEE7;">import</span> User
-<span style="color: #E1BEE7;">from</span> django.test <span style="color: #E1BEE7;">import</span> TestCase
-<span style="color: #E1BEE7;">from</span> django.test.client <span style="color: #E1BEE7;">import</span> Client
+<pre class="src src-python"><span class="org-keyword">from</span> django.contrib.auth.models <span class="org-keyword">import</span> User
+<span class="org-keyword">from</span> django.test <span class="org-keyword">import</span> TestCase
+<span class="org-keyword">from</span> django.test.client <span class="org-keyword">import</span> Client
 
-<span style="color: #E1BEE7;">class</span> <span style="color: #FFCC80;">TripTestCase</span>(TestCase):
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">setUp</span>(<span style="color: #E1BEE7;">self</span>):
-        <span style="color: #E1BEE7;">self</span>.client = Client()
-        <span style="color: #E1BEE7;">self</span>.test_user = User.objects.create_user(<span style="color: #C5E1A5;">'testuser'</span>, <span style="color: #C5E1A5;">'test@test.com'</span>, <span style="color: #C5E1A5;">'password'</span>)
+<span class="org-keyword">class</span> <span class="org-type">TripTestCase</span>(TestCase):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">setUp</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.client = Client()
+        <span class="org-keyword">self</span>.test_user = User.objects.create_user(<span class="org-string">'testuser'</span>, <span class="org-string">'test@test.com'</span>, <span class="org-string">'password'</span>)
 
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">user_login</span>(<span style="color: #E1BEE7;">self</span>):
-        <span style="color: #E1BEE7;">self</span>.client.login(username=<span style="color: #C5E1A5;">'testuser'</span>, password=<span style="color: #C5E1A5;">'password'</span>)
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">user_login</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.client.login(username=<span class="org-string">'testuser'</span>, password=<span class="org-string">'password'</span>)
 
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">tearDown</span>(<span style="color: #E1BEE7;">self</span>):
-        <span style="color: #E1BEE7;">self</span>.test_user.delete()
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">tearDown</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.test_user.delete()
 
 
-<span style="color: #E1BEE7;">class</span> <span style="color: #FFCC80;">SimpleTest</span>(TripTestCase):
-<span style="color: #9E9E9E; background-color: #474747;"> </span>   <span style="color: #E1BEE7;">def</span> <span style="color: #64B5F6;">test_list_itinerary_view</span>(<span style="color: #E1BEE7;">self</span>):
-        <span style="color: #E1BEE7;">self</span>.user_login()
-        <span style="color: #80CBC4;">resp</span> = <span style="color: #E1BEE7;">self</span>.client.get(<span style="color: #C5E1A5;">'/trip/list_itinerary/'</span>)
-        <span style="color: #E1BEE7;">self</span>.assertEqual(resp.status_code, 200)
+<span class="org-keyword">class</span> <span class="org-type">SimpleTest</span>(TripTestCase):
+<span class="org-highlight-indentation"><span class="org-highlight-indentation"> </span></span>   <span class="org-keyword">def</span> <span class="org-function-name">test_list_itinerary_view</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">self</span>.user_login()
+        <span class="org-variable-name">resp</span> = <span class="org-keyword">self</span>.client.get(<span class="org-string">'/trip/list_itinerary/'</span>)
+        <span class="org-keyword">self</span>.assertEqual(resp.status_code, 200)
 </pre>
 </div>
 </li>
@@ -299,10 +299,10 @@ using custom logging
 <div class="org-src-container">
 
 <pre class="src src-sh">sudo apt-get install nginx
-apt-get install build-essential python-dev libxml2-dev <span style="color: #757575;"># </span><span style="color: #757575;">uwsgi dependency</span>
+apt-get install build-essential python-dev libxml2-dev <span class="org-comment-delimiter"># </span><span class="org-comment">uwsgi dependency</span>
 pip install uwsgi
 bin/uwsgi --socket /tmp/uwsgi.sock --wsgi-file /mnt/scratch/test.py --chmod-socket=666
-<span style="color: #757575;"># </span><span style="color: #757575;">serve django</span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">serve django</span>
 bin/uwsgi --socket /tmp/uwsgi.sock --chdir /mnt/scratch/testapp/testdeploy/ --wsgi-file /mnt/scratch/testapp/testdeploy/testdeploy/wsgi.py  --virtualenv /usr/virtualenv --chmod-socket=666
 </pre>
 </div>
@@ -330,9 +330,9 @@ bin/uwsgi --socket /tmp/uwsgi.sock --chdir /mnt/scratch/testapp/testdeploy/ --ws
 <li>use <code>stat\_server</code> for worker monitoring
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="color: #757575;"># </span><span style="color: #757575;">in uwsgi.ini</span>
+<pre class="src src-sh"><span class="org-comment-delimiter"># </span><span class="org-comment">in uwsgi.ini</span>
 stats = /tmp/uwsgi_stat.sock
-<span style="color: #757575;"># </span><span style="color: #757575;">in shell</span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">in shell</span>
 $ uwsgitop /tmp/uwsgi_stat.sock
 </pre>
 </div>

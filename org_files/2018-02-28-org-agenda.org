@@ -1,0 +1,98 @@
+#+STARTUP: showall indent
+#+STARTUP: hidestars
+#+BEGIN_HTML
+---
+layout: post
+title: 使用Org Mode管理日常任务
+categories: computers
+tags: emacs
+excerpt: 使用org mode可以快速地记录某个idea或者任务，并用强大的agenda view配合refile功能组织所有的条目
+---
+#+END_HTML
+记录一下使用org mode来做任务管理的一些配置和方法
+* capture: 用最快的速度记下脑中的想法
+~org-capture~ 用来快速地记下心中一闪而过的某个想法，为了使得速度最快，需要在emacs中任何地方可以唤起这个函数，同时在捕获时减少不必要的输入。
+首先定义一个全局快捷键来唤起这个函数
+#+BEGIN_SRC lisp
+(global-set-key (kbd "C-c c")   'org-capture)
+#+END_SRC
+同时在 ~org-capture-templates~ 中定义自定义模板和快捷键
+#+BEGIN_SRC lisp
+(setq org-capture-templates
+      `(("t" "task" entry (file "~/Personal/gtd/inbox.org")
+         "* TODO %?\nCaptured %<%Y-%m-%d %H:%M>") 
+        ("n" "note" entry (file "~/Personal/gtd/notes.org")
+         "* Note %<%Y-%m-%d %H:%M>\n%?")))
+#+END_SRC
+这里达到了3个目的：
+1. 使用快捷键 ~t~ 和 ~n~ 分别建立一条 ~task~ 或者 ~note~
+2. 分别存放到 ~inbox.org~ 和 ~notes.org~
+3. 在模板中自动加入时间戳
+
+当然在捕获的时候可以同时设置优先级或者截止时间等属性。
+
+* refile: 将任务快速的归类和整理
+所谓 ~refile~ 就是将org文件中的一个subtree移动到另一个tree或者文件下，可以在capture的时候就进行refile，也可以稍后进行。
+由于我们所有捕获的任务一开始都在 ~inbox.org~ 中，我们给这个文件的所有条目加上全局的 ~REFILE~ 标签，以方便在后续的 agenda view中过滤出所有需要refile的任务。只要在org文件的开头加上一行全局tag
+#+BEGIN_SRC org
+#+FILETAGS: REFILE
+#+END_SRC
+* agenda: 任务查看和操作面板
+默认的agenda视图只是列出接下来一周的所有已经scheduled的条目，需要做一些小修改来使得更加好用一些。
+首先我们把todo和notes分开
+#+BEGIN_SRC lisp
+  (setq org-agenda-custom-commands
+        (quote (("c" "Simple agenda view"
+                 ((agenda "")))
+                ("N" "Notes" tags "NOTE"
+                 ((org-agenda-overriding-header "Notes")
+                  (org-tags-match-list-sublevels t)
+                  )))))
+#+END_SRC
+在todo的视图内，希望增加一个段落列出所有最高优先级的项目，另一个段落列出所有等待 ~refile~ 的条目，最后一个条目列出所有还没有规划日期的条目。
+#+BEGIN_SRC lisp
+(setq org-agenda-custom-commands
+      (quote (("c" "Simple agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (agenda "")
+	  (tags "REFILE"
+		((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+		 (org-agenda-overriding-header "Tasks to Refile")
+                       (org-tags-match-list-sublevels nil)))
+          (alltodo ""
+		   ((org-agenda-skip-function
+		     '(org-agenda-skip-entry-if 'scheduled))
+		    (org-agenda-overriding-header "Global list of Un-scheduled tasks:")
+		    ))))
+	  
+	  ("N" "Notes" tags "NOTE"
+	   ((org-agenda-overriding-header "Notes")
+	    (org-tags-match-list-sublevels t)))
+	  )))
+#+END_SRC
+通过 ~(tags "TAG")~ 可以筛选出所有带有TAG标签的条目，再配合 ~org-agenda-skip-function~ 过滤掉更多的属性，例如
+#+BEGIN_SRC lisp
+(org-agenda-skip-function
+		     '(org-agenda-skip-entry-if 'scheduled))
+#+END_SRC
+会过滤掉所有已经schedule时间的条目。
+为了让每个新的段落更清楚，可以用以下方法修改每个段落的标题
+#+BEGIN_SRC lisp
+(org-agenda-overriding-header "Global list of Un-scheduled tasks:")
+#+END_SRC
+在agenda视图除了可以对某条条目进行常规的设置schedule/deadline，修改tag/property等操作外，还可以进行批量操作。在需要批量处理的条目上用 ~m~ 进行mark，然后 ~B~ 对所有marked的条目进行后续操作（例如refile或者修改tag等）。
+
+* archive: 归档已完成的任务
+随着任务越来越多，几个.org文件会变得越来越大，需要定期将已经完成的任务进行归档。我倾向与手动批量归档，可以用以下函数实现
+#+BEGIN_SRC lisp
+(defun org-archive-done-tasks ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (outline-previous-heading)))
+   "/DONE" 'agenda))
+#+END_SRC
+每隔一段时间运行一次就行了，会将*.org中的已完成的条目移动到*.org_archive中。
