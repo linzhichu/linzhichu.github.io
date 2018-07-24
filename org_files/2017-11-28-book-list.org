@@ -1,13 +1,13 @@
 #+STARTUP: showall indent
 #+STARTUP: hidestars
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 ---
 layout: post
 title: 读书记录
 categories: book-review
 excerpt: Here is a list of book reviews 
 ---
-#+END_HTML
+#+END_EXPORT
 
 * 2017-11
 #+BEGIN_QUOTE
